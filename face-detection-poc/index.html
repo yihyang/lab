@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Face Detection POC</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/face-api.js@0.22.2/dist/face-api.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Face Detection POC</h1>
+            <p class="subtitle">Browser-based face detection with toggleable visualizations</p>
+        </header>
+
+        <div class="main-content">
+            <div class="video-container">
+                <video id="video" autoplay muted playsinline></video>
+                <canvas id="canvas"></canvas>
+                <div id="loading" class="loading-overlay">
+                    <div class="spinner"></div>
+                    <p id="loading-message">Initializing...</p>
+                </div>
+                <div id="error-overlay" class="error-overlay hidden">
+                    <div class="error-content">
+                        <h2>Error</h2>
+                        <p id="error-message"></p>
+                        <button id="retry-button" class="btn">Retry</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="controls-container">
+                <div class="control-panel">
+                    <h2>Visualization Controls</h2>
+                    <div id="toggles"></div>
+                </div>
+
+                <div class="stats-panel">
+                    <h2>Statistics</h2>
+                    <div class="stat-item">
+                        <span class="stat-label">Faces Detected:</span>
+                        <span id="face-count" class="stat-value">0</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">FPS:</span>
+                        <span id="fps-counter" class="stat-value">0</span>
+                    </div>
+                </div>
+
+                <div class="event-log-panel">
+                    <h2>Event Log</h2>
+                    <div id="event-log" class="event-log"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script type="module" src="main.js"></script>
+</body>
+</html>

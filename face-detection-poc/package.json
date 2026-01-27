@@ -1,0 +1,17 @@
+{
+  "name": "face-detection-poc",
+  "version": "1.0.0",
+  "description": "Browser-based face detection proof of concept with toggleable visualizations",
+  "type": "module",
+  "scripts": {
+    "dev": "vite --host",
+    "build": "vite build",
+    "preview": "vite preview --host"
+  },
+  "devDependencies": {
+    "vite": "^5.0.0"
+  },
+  "keywords": ["face-detection", "computer-vision", "webcam"],
+  "author": "",
+  "license": "ISC"
+}
