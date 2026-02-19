@@ -131,6 +131,7 @@ export interface LadderState {
   stepSimulation: () => void;
   toggleInput: (variable: string) => void;
   setSimulationState: (state: Partial<SimulationState>) => void;
+  setSimulationSpeed: (speed: SimulationSpeed) => void;
 }
 
 // Recent file entry
@@ -141,8 +142,12 @@ export interface RecentFile {
 }
 
 // Simulation State
+export type SimulationSpeed = 'slow' | 'medium' | 'fast';
+
 export interface SimulationState {
   running: boolean;
+  speed: SimulationSpeed;
+  cycleCount: number;
   inputs: Record<string, boolean>;      // X0, X1, etc.
   outputs: Record<string, boolean>;     // Y0, Y1, etc.
   internalBits: Record<string, boolean>; // M0, M1, etc.

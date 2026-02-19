@@ -5,6 +5,7 @@ import type {
   LadderElement,
   Position,
   SimulationState,
+  SimulationSpeed,
 } from '../core/schema/types';
 import { createEmptyProject } from '../core/schema/types';
 
@@ -40,9 +41,20 @@ const clearHistory = () => {
   historyIndex = -1;
 };
 
+// Simulation interval management
+let simulationInterval: ReturnType<typeof setInterval> | null = null;
+
+const SPEED_INTERVALS: Record<SimulationSpeed, number> = {
+  slow: 500,    // 500ms per cycle
+  medium: 200,  // 200ms per cycle
+  fast: 50,     // 50ms per cycle
+};
+
 // Initial simulation state
 const createEmptySimulationState = (): SimulationState => ({
   running: false,
+  speed: 'medium',
+  cycleCount: 0,
   inputs: {},
   outputs: {},
   internalBits: {},
@@ -448,6 +460,17 @@ export const useStore = create<LadderState>((set, get) => ({
   // Simulation actions
   startSimulation: () => {
     const state = get();
+
+    // Clear any existing interval
+    if (simulationInterval) {
+      clearInterval(simulationInterval);
+    }
+
+    // Start continuous simulation
+    simulationInterval = setInterval(() => {
+      get().stepSimulation();
+    }, SPEED_INTERVALS[state.simulation.speed]);
+
     set({
       simulation: {
         ...state.simulation,
@@ -457,6 +480,12 @@ export const useStore = create<LadderState>((set, get) => ({
   },
 
   stopSimulation: () => {
+    // Clear the interval
+    if (simulationInterval) {
+      clearInterval(simulationInterval);
+      simulationInterval = null;
+    }
+
     const state = get();
     set({
       simulation: {
@@ -467,6 +496,12 @@ export const useStore = create<LadderState>((set, get) => ({
   },
 
   resetSimulation: () => {
+    // Clear the interval
+    if (simulationInterval) {
+      clearInterval(simulationInterval);
+      simulationInterval = null;
+    }
+
     set({
       simulation: createEmptySimulationState(),
     });
@@ -591,6 +626,8 @@ export const useStore = create<LadderState>((set, get) => ({
     set({
       simulation: {
         running: simulation.running,
+        speed: simulation.speed,
+        cycleCount: simulation.cycleCount + 1,
         inputs: { ...simulation.inputs },
         outputs: newOutputs,
         internalBits: { ...simulation.internalBits },
@@ -621,6 +658,25 @@ export const useStore = create<LadderState>((set, get) => ({
       simulation: {
         ...state.simulation,
         ...updates,
+      },
+    });
+  },
+
+  setSimulationSpeed: (speed: SimulationSpeed) => {
+    const state = get();
+
+    // If simulation is running, update the interval
+    if (state.simulation.running && simulationInterval) {
+      clearInterval(simulationInterval);
+      simulationInterval = setInterval(() => {
+        get().stepSimulation();
+      }, SPEED_INTERVALS[speed]);
+    }
+
+    set({
+      simulation: {
+        ...state.simulation,
+        speed,
       },
     });
   },
