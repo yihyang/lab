@@ -1,0 +1,28 @@
+# fly.toml example configuration for Ladder Web IDE
+# Copy this file to fly.toml and update the app name before deploying
+#
+# Steps to deploy:
+# 1. Install fly CLI: https://fly.io/docs/hands-on/install-flyctl/
+# 2. Login: fly auth login
+# 3. Create app: fly apps create <your-app-name>
+# 4. Update "app" field below with your app name
+# 5. Deploy: fly deploy
+
+app = "your-app-name-here"
+primary_region = "sjc"  # Change to your preferred region (sjc, fra, etc.)
+
+[build]
+  dockerfile = "Dockerfile.prod"
+
+[http_service]
+  internal_port = 80
+  force_https = true
+  auto_stop_machines = true
+  auto_start_machines = true
+  min_machines_running = 0
+  processes = ["app"]
+
+[[vm]]
+  cpu_kind = "shared"
+  cpus = 1
+  memory_mb = 256
