@@ -38,87 +38,88 @@ export function SimulationControls() {
   const timers = Array.from(timerVariables).sort();
   const counters = Array.from(counterVariables).sort();
 
-  const speedOptions: { value: SimulationSpeed; label: string }[] = [
-    { value: 'slow', label: 'Slow' },
-    { value: 'medium', label: 'Med' },
-    { value: 'fast', label: 'Fast' },
+  const speedOptions: { value: SimulationSpeed; label: string; shortLabel: string }[] = [
+    { value: 'slow', label: 'Slow', shortLabel: 'S' },
+    { value: 'medium', label: 'Med', shortLabel: 'M' },
+    { value: 'fast', label: 'Fast', shortLabel: 'F' },
   ];
 
   return (
-    <div className="flex items-center gap-3 bg-gray-100 rounded-lg px-3 py-1.5">
+    <div className="flex flex-wrap items-center gap-1 md:gap-2 lg:gap-3 bg-gray-100 rounded-lg px-2 md:px-3 py-1.5 text-xs md:text-sm">
       {/* Simulation controls */}
       <div className="flex items-center gap-1">
         {simulation.running ? (
           <button
             onClick={stopSimulation}
-            className="flex items-center gap-1 px-2 py-1 text-sm font-medium text-white bg-red-600 rounded hover:bg-red-700"
+            className="flex items-center gap-1 px-2 py-1 text-xs md:text-sm font-medium text-white bg-red-600 rounded hover:bg-red-700"
             title="Stop simulation"
           >
             <span>⏹</span>
-            <span>Stop</span>
+            <span className="hidden sm:inline">Stop</span>
           </button>
         ) : (
           <button
             onClick={startSimulation}
-            className="flex items-center gap-1 px-2 py-1 text-sm font-medium text-white bg-green-600 rounded hover:bg-green-700"
+            className="flex items-center gap-1 px-2 py-1 text-xs md:text-sm font-medium text-white bg-green-600 rounded hover:bg-green-700"
             title="Start continuous simulation"
           >
             <span>▶</span>
-            <span>Run</span>
+            <span className="hidden sm:inline">Run</span>
           </button>
         )}
 
         <button
           onClick={stepSimulation}
           disabled={simulation.running}
-          className="flex items-center gap-1 px-2 py-1 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+          className="flex items-center gap-1 px-2 py-1 text-xs md:text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
           title="Step simulation (single cycle)"
         >
           <span>⏭</span>
-          <span>Step</span>
+          <span className="hidden sm:inline">Step</span>
         </button>
 
         <button
           onClick={resetSimulation}
-          className="flex items-center gap-1 px-2 py-1 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded hover:bg-gray-50"
+          className="flex items-center gap-1 px-2 py-1 text-xs md:text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded hover:bg-gray-50"
           title="Reset simulation"
         >
           <span>↺</span>
-          <span>Reset</span>
+          <span className="hidden md:inline">Reset</span>
         </button>
       </div>
 
       {/* Speed control */}
       <div className="flex items-center gap-1">
-        <span className="text-xs text-gray-500">Speed:</span>
+        <span className="text-gray-500 hidden lg:inline">Speed:</span>
         {speedOptions.map((option) => (
           <button
             key={option.value}
             onClick={() => setSimulationSpeed(option.value)}
-            className={`px-2 py-0.5 text-xs font-medium rounded transition-colors ${
+            className={`px-1.5 md:px-2 py-0.5 text-xs font-medium rounded transition-colors ${
               simulation.speed === option.value
                 ? 'bg-blue-500 text-white'
                 : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
             }`}
             title={`${option.label} speed`}
           >
-            {option.label}
+            <span className="md:hidden">{option.shortLabel}</span>
+            <span className="hidden md:inline">{option.label}</span>
           </button>
         ))}
       </div>
 
       {/* Divider */}
-      <div className="w-px h-6 bg-gray-300" />
+      <div className="hidden md:block w-px h-5 bg-gray-300" />
 
       {/* Input toggles */}
       {inputs.length > 0 && (
         <div className="flex items-center gap-1">
-          <span className="text-xs text-gray-500">In:</span>
+          <span className="text-gray-500 hidden sm:inline">In:</span>
           {inputs.map((input) => (
             <button
               key={input}
               onClick={() => toggleInput(input)}
-              className={`px-2 py-0.5 text-xs font-mono rounded transition-colors ${
+              className={`px-1.5 md:px-2 py-0.5 text-xs font-mono rounded transition-colors ${
                 simulation.inputs[input]
                   ? 'bg-green-500 text-white'
                   : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
@@ -131,14 +132,14 @@ export function SimulationControls() {
         </div>
       )}
 
-      {/* Output states */}
+      {/* Output states - hidden on small screens */}
       {outputs.length > 0 && (
-        <div className="flex items-center gap-1">
-          <span className="text-xs text-gray-500">Out:</span>
+        <div className="hidden sm:flex items-center gap-1">
+          <span className="text-gray-500">Out:</span>
           {outputs.map((output) => (
             <span
               key={output}
-              className={`px-2 py-0.5 text-xs font-mono rounded ${
+              className={`px-1.5 md:px-2 py-0.5 text-xs font-mono rounded ${
                 simulation.outputs[output]
                   ? 'bg-amber-500 text-white'
                   : 'bg-gray-200 text-gray-500'
@@ -151,10 +152,10 @@ export function SimulationControls() {
         </div>
       )}
 
-      {/* Timer values */}
+      {/* Timer values - hidden on small/medium screens */}
       {timers.length > 0 && (
-        <div className="flex items-center gap-1">
-          <span className="text-xs text-gray-500">Timers:</span>
+        <div className="hidden lg:flex items-center gap-1">
+          <span className="text-gray-500">T:</span>
           {timers.map((timer) => {
             const t = simulation.timers[timer];
             const elapsed = t?.elapsed ?? 0;
@@ -177,10 +178,10 @@ export function SimulationControls() {
         </div>
       )}
 
-      {/* Counter values */}
+      {/* Counter values - hidden on small/medium screens */}
       {counters.length > 0 && (
-        <div className="flex items-center gap-1">
-          <span className="text-xs text-gray-500">Counters:</span>
+        <div className="hidden lg:flex items-center gap-1">
+          <span className="text-gray-500">C:</span>
           {counters.map((counter) => {
             const c = simulation.counters[counter];
             const current = c?.current ?? 0;
@@ -204,17 +205,17 @@ export function SimulationControls() {
       )}
 
       {/* Divider */}
-      <div className="w-px h-6 bg-gray-300" />
+      <div className="hidden sm:block w-px h-5 bg-gray-300" />
 
       {/* Cycle counter and status */}
-      <div className="flex items-center gap-2">
-        <span className="text-xs text-gray-500">Cycles: {simulation.cycleCount}</span>
+      <div className="flex items-center gap-1 md:gap-2">
+        <span className="text-gray-500">#{simulation.cycleCount}</span>
         <span
           className={`w-2 h-2 rounded-full ${
             simulation.running ? 'bg-green-500 animate-pulse' : 'bg-gray-400'
           }`}
         />
-        <span className="text-xs text-gray-600">
+        <span className="hidden sm:inline text-gray-600">
           {simulation.running ? 'Running' : 'Stopped'}
         </span>
       </div>

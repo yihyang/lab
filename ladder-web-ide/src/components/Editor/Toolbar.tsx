@@ -99,9 +99,9 @@ export function Toolbar({ className = '' }: ToolbarProps) {
   };
 
   return (
-    <div className={`bg-white border-b border-gray-300 px-4 py-2 flex items-center gap-2 ${className}`}>
+    <div className={`bg-white border-b border-gray-300 px-2 md:px-4 py-2 flex flex-wrap items-center gap-1 md:gap-2 ${className}`}>
       {/* Project Name */}
-      <div className="flex items-center gap-2 mr-4 pr-4 border-r border-gray-300">
+      <div className="flex items-center gap-1 md:gap-2 mr-2 md:mr-4 pr-2 md:pr-4 border-r border-gray-300">
         <span className="text-lg">⚡</span>
         {isEditingName ? (
           <input
@@ -111,13 +111,13 @@ export function Toolbar({ className = '' }: ToolbarProps) {
             onChange={(e) => setEditingName(e.target.value)}
             onBlur={handleNameBlur}
             onKeyDown={handleNameKeyDown}
-            className="font-semibold text-gray-800 px-1 py-0.5 border border-blue-500 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 min-w-[100px]"
+            className="font-semibold text-gray-800 px-1 py-0.5 border border-blue-500 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 min-w-[80px] md:min-w-[100px] text-sm"
             autoFocus
           />
         ) : (
           <span
             onDoubleClick={handleNameDoubleClick}
-            className="font-semibold text-gray-800 cursor-pointer hover:text-blue-600 hover:bg-blue-50 px-1 py-0.5 rounded"
+            className="font-semibold text-gray-800 cursor-pointer hover:text-blue-600 hover:bg-blue-50 px-1 py-0.5 rounded text-sm max-w-[120px] md:max-w-none truncate"
             title="Double-click to rename"
           >
             {project.name}
@@ -131,21 +131,21 @@ export function Toolbar({ className = '' }: ToolbarProps) {
       {/* New Button */}
       <button
         onClick={handleNewClick}
-        className="flex items-center gap-2 px-3 py-1.5 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500"
+        className="flex items-center gap-1 md:gap-2 px-2 md:px-3 py-1.5 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500"
         title="New Project"
       >
         <span className="text-base leading-none">+</span>
-        New
+        <span className="hidden sm:inline">New</span>
       </button>
 
       {/* Open Button */}
       <button
         onClick={handleOpenClick}
-        className="flex items-center gap-2 px-3 py-1.5 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500"
+        className="flex items-center gap-1 md:gap-2 px-2 md:px-3 py-1.5 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500"
         title="Open Project"
       >
         <span className="text-base leading-none">📁</span>
-        Open
+        <span className="hidden sm:inline">Open</span>
       </button>
       <input
         ref={fileInputRef}
@@ -155,8 +155,8 @@ export function Toolbar({ className = '' }: ToolbarProps) {
         className="hidden"
       />
 
-      {/* Divider */}
-      <div className="w-px h-6 bg-gray-300 mx-1" />
+      {/* Divider - hidden on small screens */}
+      <div className="hidden md:block w-px h-6 bg-gray-300 mx-1" />
 
       {/* Undo Button */}
       <button
@@ -178,23 +178,23 @@ export function Toolbar({ className = '' }: ToolbarProps) {
         <span className="text-base leading-none">↪</span>
       </button>
 
-      {/* Divider */}
-      <div className="w-px h-6 bg-gray-300 mx-1" />
+      {/* Divider - hidden on small screens */}
+      <div className="hidden md:block w-px h-6 bg-gray-300 mx-1" />
 
       {/* Save Button */}
       <button
         onClick={handleSaveClick}
-        className="flex items-center gap-2 px-3 py-1.5 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500"
+        className="flex items-center gap-1 md:gap-2 px-2 md:px-3 py-1.5 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500"
         title="Save Project"
       >
         <span className="text-base leading-none">💾</span>
-        Save
+        <span className="hidden sm:inline">Save</span>
       </button>
 
-      {/* Save As Button */}
+      {/* Save As Button - hidden on small screens */}
       <button
         onClick={handleSaveAsClick}
-        className="flex items-center gap-2 px-3 py-1.5 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500"
+        className="hidden md:flex items-center gap-2 px-3 py-1.5 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500"
         title="Save Project As..."
       >
         <span className="text-base leading-none">📄</span>
@@ -204,21 +204,23 @@ export function Toolbar({ className = '' }: ToolbarProps) {
       {/* Export Button */}
       <button
         onClick={() => setShowExport(true)}
-        className="flex items-center gap-2 px-3 py-1.5 text-sm font-medium text-white bg-green-600 border border-green-600 rounded hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500"
+        className="flex items-center gap-1 md:gap-2 px-2 md:px-3 py-1.5 text-sm font-medium text-white bg-green-600 border border-green-600 rounded hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500"
         title="Export to PLC format"
       >
         <span className="text-base leading-none">📤</span>
-        Export
+        <span className="hidden sm:inline">Export</span>
       </button>
 
-      {/* Divider */}
-      <div className="w-px h-6 bg-gray-300 mx-1" />
+      {/* Divider - hidden on small screens */}
+      <div className="hidden lg:block w-px h-6 bg-gray-300 mx-1" />
 
       {/* Simulation Controls */}
-      <SimulationControls />
+      <div className="w-full lg:w-auto mt-1 lg:mt-0">
+        <SimulationControls />
+      </div>
 
-      {/* Divider */}
-      <div className="w-px h-6 bg-gray-300 mx-1" />
+      {/* Divider - hidden on small screens */}
+      <div className="hidden lg:block w-px h-6 bg-gray-300 mx-1" />
 
       {/* Validation Status */}
       <ValidationStatus />
