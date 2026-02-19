@@ -1,0 +1,40 @@
+services:
+  # Development server with hot reload
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    ports:
+      - "5173:5173"
+    volumes:
+      # Mount source code for hot reload
+      - ./src:/app/src:delegated
+      - ./public:/app/public:delegated
+      - ./index.html:/app/index.html:delegated
+      # Prevent overwriting node_modules
+      - /app/node_modules
+    environment:
+      - NODE_ENV=development
+    command: npm run dev -- --host
+
+  # Production preview server
+  preview:
+    build:
+      context: .
+      dockerfile: Dockerfile.prod
+    ports:
+      - "4173:80"
+    profiles:
+      - preview
+
+  # Optional: Run tests in container
+  test:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    volumes:
+      - ./src:/app/src:delegated
+      - /app/node_modules
+    command: npm run test
+    profiles:
+      - test
