@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useRef } from 'react';
+import { useCallback, useMemo, useRef, useState } from 'react';
 import ReactFlow, {
   Background,
   Controls,
@@ -7,6 +7,7 @@ import ReactFlow, {
   useNodesState,
   useEdgesState,
   Panel,
+  useReactFlow,
 } from 'reactflow';
 import type { Node, Edge, Connection, NodeTypes, OnConnect } from 'reactflow';
 import 'reactflow/dist/style.css';
@@ -137,6 +138,7 @@ function projectToNodes(
           selected: selectedElementId === element.id,
           hasPower: powerFlow[element.id] ?? false,
         },
+        draggable: true, // Enable dragging for reordering
       });
     });
   });
@@ -235,17 +237,17 @@ export function Canvas({ className = '' }: CanvasProps) {
   const project = useStore((state) => state.project);
   const selectedElementId = useStore((state) => state.selectedElementId);
   const updateElement = useStore((state) => state.updateElement);
+  const updateElementPosition = useStore((state) => state.updateElementPosition);
   const removeElement = useStore((state) => state.removeElement);
   const setSelectedElement = useStore((state) => state.setSelectedElement);
   const connectElements = useStore((state) => state.connectElements);
   const addRung = useStore((state) => state.addRung);
   const addElement = useStore((state) => state.addElement);
   const reorderRungElements = useStore((state) => state.reorderRungElements);
-  const undo = useStore((state) => state.undo);
-  const redo = useStore((state) => state.redo);
-  const canUndo = useStore((state) => state.canUndo);
-  const canRedo = useStore((state) => state.canRedo);
   const powerFlow = useStore((state) => state.simulation.powerFlow);
+
+  const { fitView, zoomIn, zoomOut, getZoom } = useReactFlow();
+  const [zoomLevel, setZoomLevel] = useState(100);
 
   const reactFlowWrapper = useRef<HTMLDivElement>(null);
 
@@ -300,7 +302,7 @@ export function Canvas({ className = '' }: CanvasProps) {
 
   const onNodeClick = useCallback(
     (_: React.MouseEvent, node: Node) => {
-      if (node.id !== 'left-rail' && node.id !== 'right-rail') {
+      if (node.id !== 'left-rail' && node.id !== 'right-rail' && !node.id.startsWith('rung-label-')) {
         setSelectedElement(node.id);
       }
     },
@@ -310,6 +312,34 @@ export function Canvas({ className = '' }: CanvasProps) {
   const onPaneClick = useCallback(() => {
     setSelectedElement(null);
   }, [setSelectedElement]);
+
+  // Handle node drag end for reordering
+  const onNodeDragStop = useCallback(
+    (_: React.MouseEvent, node: Node) => {
+      // Skip power rails and rung labels
+      if (node.id === 'left-rail' || node.id === 'right-rail' || node.id.startsWith('rung-label-')) {
+        return;
+      }
+
+      // Find which rung this element belongs to
+      for (const rung of project.rungs) {
+        const element = rung.elements.find((e) => e.id === node.id);
+        if (element) {
+          // Calculate new x position based on dropped position
+          const newX = Math.round((node.position.x - ELEMENT_START_X) / ELEMENT_WIDTH);
+
+          // Only update if position changed
+          if (newX !== element.position.x && newX >= 0) {
+            updateElementPosition(node.id, { x: newX, y: 0 });
+            // Reorder elements to maintain proper order
+            setTimeout(() => reorderRungElements(rung.id), 0);
+          }
+          return;
+        }
+      }
+    },
+    [project.rungs, updateElementPosition, reorderRungElements]
+  );
 
   // Handle drop from palette
   const onDragOver = useCallback((e: React.DragEvent) => {
@@ -397,49 +427,31 @@ export function Canvas({ className = '' }: CanvasProps) {
     [addRung, addElement, reorderRungElements]
   );
 
-  // Keyboard shortcuts
-  const onKeyDown = useCallback(
-    (e: React.KeyboardEvent) => {
-      // Don't trigger shortcuts when typing in input fields
-      const target = e.target as HTMLElement;
-      if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA') {
-        return;
-      }
+  // Zoom handlers
+  const handleZoomIn = useCallback(() => {
+    zoomIn();
+    setZoomLevel(Math.round(getZoom() * 100));
+  }, [zoomIn, getZoom]);
 
-      // Undo: Ctrl+Z
-      if ((e.ctrlKey || e.metaKey) && e.key === 'z' && !e.shiftKey) {
-        e.preventDefault();
-        if (canUndo) {
-          undo();
-        }
-        return;
-      }
+  const handleZoomOut = useCallback(() => {
+    zoomOut();
+    setZoomLevel(Math.round(getZoom() * 100));
+  }, [zoomOut, getZoom]);
 
-      // Redo: Ctrl+Y or Ctrl+Shift+Z
-      if ((e.ctrlKey || e.metaKey) && (e.key === 'y' || (e.key === 'z' && e.shiftKey))) {
-        e.preventDefault();
-        if (canRedo) {
-          redo();
-        }
-        return;
-      }
+  const handleFitView = useCallback(() => {
+    fitView({ padding: 0.2 });
+    setZoomLevel(Math.round(getZoom() * 100));
+  }, [fitView, getZoom]);
 
-      // Delete selected element
-      if (e.key === 'Delete' || e.key === 'Backspace') {
-        if (selectedElementId) {
-          removeElement(selectedElementId);
-          setSelectedElement(null);
-        }
-      }
-    },
-    [selectedElementId, removeElement, setSelectedElement, undo, redo, canUndo, canRedo]
-  );
+  // Update zoom level display
+  const onMoveEnd = useCallback(() => {
+    setZoomLevel(Math.round(getZoom() * 100));
+  }, [getZoom]);
 
   return (
     <div
       ref={reactFlowWrapper}
       className={`w-full h-full ${className}`}
-      onKeyDown={onKeyDown}
       tabIndex={0}
     >
       <ReactFlow
@@ -450,6 +462,7 @@ export function Canvas({ className = '' }: CanvasProps) {
         onConnect={onConnect}
         onNodeClick={onNodeClick}
         onPaneClick={onPaneClick}
+        onNodeDragStop={onNodeDragStop}
         fitView
         onDragOver={onDragOver}
         onDrop={onDrop}
@@ -461,9 +474,10 @@ export function Canvas({ className = '' }: CanvasProps) {
           style: { stroke: '#374151', strokeWidth: 2 },
         }}
         connectionLineStyle={{ stroke: '#3b82f6', strokeWidth: 2 }}
+        onMoveEnd={onMoveEnd}
       >
         <Background color="#e5e7eb" gap={20} />
-        <Controls />
+        <Controls showInteractive={false} />
         <MiniMap
           nodeStrokeWidth={3}
           zoomable
@@ -474,12 +488,39 @@ export function Canvas({ className = '' }: CanvasProps) {
           Ladder Logic Editor
         </Panel>
 
-        {/* Rung Management */}
+        {/* Zoom Controls */}
         <Panel position="bottom-left" className="flex flex-col gap-2">
+          <div className="flex items-center gap-1 bg-white/80 rounded shadow px-2 py-1">
+            <button
+              onClick={handleZoomOut}
+              className="w-6 h-6 flex items-center justify-center text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded"
+              title="Zoom out"
+            >
+              −
+            </button>
+            <span className="text-xs font-mono text-gray-600 min-w-[40px] text-center">
+              {zoomLevel}%
+            </span>
+            <button
+              onClick={handleZoomIn}
+              className="w-6 h-6 flex items-center justify-center text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded"
+              title="Zoom in"
+            >
+              +
+            </button>
+            <button
+              onClick={handleFitView}
+              className="ml-1 px-2 py-0.5 text-xs text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded"
+              title="Fit to view"
+            >
+              Fit
+            </button>
+          </div>
+
           <button
             onClick={() => addRung()}
             className="flex items-center gap-1 px-3 py-1.5 text-sm font-medium text-white bg-blue-600 rounded hover:bg-blue-700 shadow"
-            title="Add new rung"
+            title="Add new rung (Ctrl+R)"
           >
             <span className="text-base leading-none">+</span>
             <span>Add Rung</span>

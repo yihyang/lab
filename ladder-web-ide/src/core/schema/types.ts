@@ -98,6 +98,9 @@ export interface LadderState {
   // Simulation state
   simulation: SimulationState;
 
+  // Clipboard state
+  clipboard: LadderElement | null;
+
   // Actions
   setProject: (project: LadderProject) => void;
   updateProjectName: (name: string) => void;
@@ -123,6 +126,11 @@ export interface LadderState {
   // Undo/Redo actions
   undo: () => void;
   redo: () => void;
+
+  // Clipboard actions
+  copyElement: () => void;
+  pasteElement: (targetRungId?: string) => void;
+  duplicateElement: () => void;
 
   // Simulation actions
   startSimulation: () => void;

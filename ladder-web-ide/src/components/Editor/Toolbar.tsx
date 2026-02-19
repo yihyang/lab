@@ -7,9 +7,10 @@ import { SimulationControls } from './SimulationControls';
 
 interface ToolbarProps {
   className?: string;
+  onShowShortcuts?: () => void;
 }
 
-export function Toolbar({ className = '' }: ToolbarProps) {
+export function Toolbar({ className = '', onShowShortcuts }: ToolbarProps) {
   const { handleSave, handleOpen, handleNew, isDirty } = useSaveLoad();
   const project = useStore((state) => state.project);
   const updateProjectName = useStore((state) => state.updateProjectName);
@@ -132,7 +133,7 @@ export function Toolbar({ className = '' }: ToolbarProps) {
       <button
         onClick={handleNewClick}
         className="flex items-center gap-1 md:gap-2 px-2 md:px-3 py-1.5 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500"
-        title="New Project"
+        title="New Project (Ctrl+N)"
       >
         <span className="text-base leading-none">+</span>
         <span className="hidden sm:inline">New</span>
@@ -142,7 +143,7 @@ export function Toolbar({ className = '' }: ToolbarProps) {
       <button
         onClick={handleOpenClick}
         className="flex items-center gap-1 md:gap-2 px-2 md:px-3 py-1.5 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500"
-        title="Open Project"
+        title="Open Project (Ctrl+O)"
       >
         <span className="text-base leading-none">📁</span>
         <span className="hidden sm:inline">Open</span>
@@ -185,7 +186,7 @@ export function Toolbar({ className = '' }: ToolbarProps) {
       <button
         onClick={handleSaveClick}
         className="flex items-center gap-1 md:gap-2 px-2 md:px-3 py-1.5 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500"
-        title="Save Project"
+        title="Save Project (Ctrl+S)"
       >
         <span className="text-base leading-none">💾</span>
         <span className="hidden sm:inline">Save</span>
@@ -224,6 +225,17 @@ export function Toolbar({ className = '' }: ToolbarProps) {
 
       {/* Validation Status */}
       <ValidationStatus />
+
+      {/* Help Button */}
+      {onShowShortcuts && (
+        <button
+          onClick={onShowShortcuts}
+          className="flex items-center gap-1 px-2 py-1.5 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          title="Keyboard shortcuts (?)"
+        >
+          <span className="text-base leading-none">?</span>
+        </button>
+      )}
 
       {/* Export Dialog */}
       <ExportDialog isOpen={showExport} onClose={() => setShowExport(false)} />

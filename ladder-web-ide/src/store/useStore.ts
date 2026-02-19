@@ -71,6 +71,7 @@ export const useStore = create<LadderState>((set, get) => ({
   canUndo: false,
   canRedo: false,
   simulation: createEmptySimulationState(),
+  clipboard: null,
 
   // Project actions
   setProject: (project: LadderProject) => {
@@ -679,6 +680,60 @@ export const useStore = create<LadderState>((set, get) => ({
         speed,
       },
     });
+  },
+
+  // Clipboard actions
+  copyElement: () => {
+    const state = get();
+    if (!state.selectedElementId) return;
+
+    // Find the selected element
+    for (const rung of state.project.rungs) {
+      const element = rung.elements.find((e) => e.id === state.selectedElementId);
+      if (element) {
+        set({ clipboard: JSON.parse(JSON.stringify(element)) });
+        return;
+      }
+    }
+  },
+
+  pasteElement: (targetRungId?: string) => {
+    const state = get();
+    if (!state.clipboard) return;
+
+    // Determine target rung
+    let rungId = targetRungId;
+    if (!rungId) {
+      // Use first rung or create one
+      if (state.project.rungs.length === 0) {
+        get().addRung();
+      }
+      rungId = get().project.rungs[0].id;
+    }
+
+    // Find the rung
+    const rung = get().project.rungs.find((r) => r.id === rungId);
+    if (!rung) return;
+
+    // Create new element from clipboard with new ID
+    const newElement = {
+      ...JSON.parse(JSON.stringify(state.clipboard)),
+      position: { x: rung.elements.length, y: 0 },
+    };
+    delete newElement.id;
+    delete newElement.rungId;
+
+    get().addElement(rungId, newElement);
+    get().reorderRungElements(rungId);
+  },
+
+  duplicateElement: () => {
+    const state = get();
+    if (!state.selectedElementId) return;
+
+    // Copy then paste
+    get().copyElement();
+    get().pasteElement();
   },
 }));
 

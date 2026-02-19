@@ -1,19 +1,33 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useState, useRef } from 'react';
 import { ReactFlowProvider } from 'reactflow';
 import { Toolbar, Canvas } from './components/Editor';
 import { ComponentPalette } from './components/Palette';
+import { KeyboardShortcutsDialog } from './components/Editor/KeyboardShortcutsDialog';
 import { useStore } from './store/useStore';
-import { loadDraft, clearDraft, saveProjectToFile } from './hooks/useSaveLoad';
+import { loadDraft, clearDraft, saveProjectToFile, openProjectFromFile } from './hooks/useSaveLoad';
 
 function AppContent() {
   const project = useStore((state) => state.project);
   const setProject = useStore((state) => state.setProject);
+  const newProject = useStore((state) => state.newProject);
   const undo = useStore((state) => state.undo);
   const redo = useStore((state) => state.redo);
   const canUndo = useStore((state) => state.canUndo);
   const canRedo = useStore((state) => state.canRedo);
+  const addRung = useStore((state) => state.addRung);
+  const copyElement = useStore((state) => state.copyElement);
+  const pasteElement = useStore((state) => state.pasteElement);
+  const duplicateElement = useStore((state) => state.duplicateElement);
+  const selectedElementId = useStore((state) => state.selectedElementId);
+  const removeElement = useStore((state) => state.removeElement);
+  const setSelectedElement = useStore((state) => state.setSelectedElement);
+  const isDirty = useStore((state) => state.isDirty);
+  const markClean = useStore((state) => state.markClean);
+
   const [showDraftPrompt, setShowDraftPrompt] = useState(false);
   const [draftInfo, setDraftInfo] = useState<{ savedAt: string } | null>(null);
+  const [showShortcuts, setShowShortcuts] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Global keyboard shortcuts
   useEffect(() => {
@@ -24,10 +38,38 @@ function AppContent() {
         return;
       }
 
+      // Help: ?
+      if (e.key === '?' || (e.shiftKey && e.key === '/')) {
+        e.preventDefault();
+        setShowShortcuts(true);
+        return;
+      }
+
       // Save: Ctrl+S
       if ((e.ctrlKey || e.metaKey) && e.key === 's') {
         e.preventDefault();
         saveProjectToFile(project);
+        markClean();
+        return;
+      }
+
+      // New: Ctrl+N
+      if ((e.ctrlKey || e.metaKey) && e.key === 'n') {
+        e.preventDefault();
+        if (isDirty) {
+          if (confirm('Create new project? Unsaved changes will be lost.')) {
+            newProject();
+          }
+        } else {
+          newProject();
+        }
+        return;
+      }
+
+      // Open: Ctrl+O
+      if ((e.ctrlKey || e.metaKey) && e.key === 'o') {
+        e.preventDefault();
+        fileInputRef.current?.click();
         return;
       }
 
@@ -44,11 +86,72 @@ function AppContent() {
         if (canRedo) redo();
         return;
       }
+
+      // Add rung: Ctrl+R
+      if ((e.ctrlKey || e.metaKey) && e.key === 'r') {
+        e.preventDefault();
+        addRung();
+        return;
+      }
+
+      // Copy: Ctrl+C
+      if ((e.ctrlKey || e.metaKey) && e.key === 'c' && !e.shiftKey) {
+        e.preventDefault();
+        copyElement();
+        return;
+      }
+
+      // Paste: Ctrl+V
+      if ((e.ctrlKey || e.metaKey) && e.key === 'v' && !e.shiftKey) {
+        e.preventDefault();
+        pasteElement();
+        return;
+      }
+
+      // Duplicate: Ctrl+D
+      if ((e.ctrlKey || e.metaKey) && e.key === 'd') {
+        e.preventDefault();
+        duplicateElement();
+        return;
+      }
+
+      // Select all: Ctrl+A
+      if ((e.ctrlKey || e.metaKey) && e.key === 'a') {
+        e.preventDefault();
+        if (project.rungs.length > 0 && project.rungs[0].elements.length > 0) {
+          setSelectedElement(project.rungs[0].elements[0].id);
+        }
+        return;
+      }
+
+      // Delete selected element
+      if (e.key === 'Delete' || e.key === 'Backspace') {
+        if (selectedElementId) {
+          removeElement(selectedElementId);
+          setSelectedElement(null);
+        }
+        return;
+      }
     };
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [project, undo, redo, canUndo, canRedo]);
+  }, [project, undo, redo, canUndo, canRedo, addRung, copyElement, pasteElement, duplicateElement, selectedElementId, removeElement, setSelectedElement, newProject, isDirty, markClean]);
+
+  // Handle file open
+  const handleFileChange = useCallback(async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      try {
+        const loadedProject = await openProjectFromFile(file);
+        setProject(loadedProject);
+      } catch (err) {
+        alert(err instanceof Error ? err.message : 'Failed to open file');
+      }
+    }
+    // Reset input
+    e.target.value = '';
+  }, [setProject]);
 
   // Check for draft on mount
   useEffect(() => {
@@ -77,17 +180,32 @@ function AppContent() {
 
   return (
     <div className="h-screen w-screen flex flex-col bg-gray-200">
+      {/* Hidden file input */}
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept=".json,.ladder.json"
+        onChange={handleFileChange}
+        className="hidden"
+      />
+
       {/* Toolbar */}
-      <Toolbar />
+      <Toolbar onShowShortcuts={() => setShowShortcuts(true)} />
 
       {/* Main Content */}
       <div className="flex-1 flex overflow-hidden">
         {/* Component Palette */}
         <ComponentPalette />
 
-        {/* Canvas - handles drop internally */}
+        {/* Canvas */}
         <Canvas />
       </div>
+
+      {/* Keyboard Shortcuts Dialog */}
+      <KeyboardShortcutsDialog
+        isOpen={showShortcuts}
+        onClose={() => setShowShortcuts(false)}
+      />
 
       {/* Draft Recovery Modal */}
       {showDraftPrompt && draftInfo && (
