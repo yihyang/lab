@@ -19,11 +19,26 @@ import { createContactElement, createCoilElement, createTimerElement, createCoun
 
 // Power rail positions
 export const LEFT_RAIL_X = 100;
-export const RIGHT_RAIL_X = 700;
+export const MIN_RIGHT_RAIL_X = 700; // Minimum right rail position
 export const RUNG_SPACING = 120;
 export const ELEMENT_WIDTH = 100;
 export const ELEMENT_START_X = 150; // First element position
 export const RUNG_LABEL_X = 30;
+export const RIGHT_RAIL_PADDING = 150; // Space for element width + margin
+
+// Calculate dynamic right rail position based on project elements
+export function calculateRightRailX(project: LadderProject): number {
+  const maxX = project.rungs.reduce((max, rung) => {
+    const rungMax = rung.elements.reduce((elemMax, el) => {
+      return Math.max(elemMax, el.position.x);
+    }, 0);
+    return Math.max(max, rungMax);
+  }, 0);
+
+  // Calculate: start position + (element index + 1) * width + padding
+  // The +1 accounts for the element itself, not just its index position
+  return Math.max(MIN_RIGHT_RAIL_X, ELEMENT_START_X + (maxX + 1) * ELEMENT_WIDTH + RIGHT_RAIL_PADDING);
+}
 
 // Custom node types
 const nodeTypes: NodeTypes = {
@@ -77,6 +92,7 @@ function getNextVariable(project: LadderProject, type: 'contact' | 'coil' | 'tim
 // Convert project elements to React Flow nodes
 function projectToNodes(
   project: LadderProject,
+  rightRailX: number,
   onVariableChange: (id: string, variable: string) => void,
   onDelete: (id: string) => void,
   selectedElementId: string | null,
@@ -101,7 +117,7 @@ function projectToNodes(
   nodes.push({
     id: 'right-rail',
     type: 'powerRail',
-    position: { x: RIGHT_RAIL_X, y: -50 },
+    position: { x: rightRailX, y: -50 },
     data: { side: 'right' as const, height: railHeight, rungCount: rungCount },
     draggable: false,
     selectable: false,
@@ -266,7 +282,7 @@ export function Canvas({ className = '' }: CanvasProps) {
   );
 
   const initialNodes = useMemo(
-    () => projectToNodes(project, handleVariableChange, handleDelete, selectedElementId, powerFlow),
+    () => projectToNodes(project, calculateRightRailX(project), handleVariableChange, handleDelete, selectedElementId, powerFlow),
     [project, handleVariableChange, handleDelete, selectedElementId, powerFlow]
   );
 
@@ -280,7 +296,8 @@ export function Canvas({ className = '' }: CanvasProps) {
 
   // Update nodes when project or powerFlow changes
   useMemo(() => {
-    const newNodes = projectToNodes(project, handleVariableChange, handleDelete, selectedElementId, powerFlow);
+    const rightRailX = calculateRightRailX(project);
+    const newNodes = projectToNodes(project, rightRailX, handleVariableChange, handleDelete, selectedElementId, powerFlow);
     setNodes(newNodes);
   }, [project, handleVariableChange, handleDelete, selectedElementId, powerFlow, setNodes]);
 
@@ -464,6 +481,7 @@ export function Canvas({ className = '' }: CanvasProps) {
         onPaneClick={onPaneClick}
         onNodeDragStop={onNodeDragStop}
         fitView
+        fitViewOptions={{ padding: 0.2 }}
         onDragOver={onDragOver}
         onDrop={onDrop}
         nodeTypes={nodeTypes}
