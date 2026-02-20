@@ -1,10 +1,12 @@
 import { useCallback, useEffect, useState, useRef } from 'react';
 import { ReactFlowProvider } from 'reactflow';
-import { Toolbar, Canvas } from './components/Editor';
+import { Toolbar, Canvas, ILView } from './components/Editor';
 import { ComponentPalette } from './components/Palette';
 import { KeyboardShortcutsDialog } from './components/Editor/KeyboardShortcutsDialog';
 import { useStore } from './store/useStore';
 import { loadDraft, clearDraft, saveProjectToFile, openProjectFromFile } from './hooks/useSaveLoad';
+
+type ViewMode = 'ladder' | 'il';
 
 function AppContent() {
   const project = useStore((state) => state.project);
@@ -27,6 +29,7 @@ function AppContent() {
   const [showDraftPrompt, setShowDraftPrompt] = useState(false);
   const [draftInfo, setDraftInfo] = useState<{ savedAt: string } | null>(null);
   const [showShortcuts, setShowShortcuts] = useState(false);
+  const [activeView, setActiveView] = useState<ViewMode>('ladder');
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Global keyboard shortcuts
@@ -194,11 +197,40 @@ function AppContent() {
 
       {/* Main Content */}
       <div className="flex-1 flex overflow-hidden">
-        {/* Component Palette */}
-        <ComponentPalette />
+        {/* Component Palette - only show in ladder view */}
+        {activeView === 'ladder' && <ComponentPalette />}
 
-        {/* Canvas */}
-        <Canvas />
+        {/* View Tabs + Content */}
+        <div className="flex-1 flex flex-col overflow-hidden">
+          {/* Tabs */}
+          <div className="flex bg-white border-b border-gray-300">
+            <button
+              onClick={() => setActiveView('ladder')}
+              className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${
+                activeView === 'ladder'
+                  ? 'border-blue-600 text-blue-600'
+                  : 'border-transparent text-gray-600 hover:text-gray-800'
+              }`}
+            >
+              Ladder
+            </button>
+            <button
+              onClick={() => setActiveView('il')}
+              className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${
+                activeView === 'il'
+                  ? 'border-blue-600 text-blue-600'
+                  : 'border-transparent text-gray-600 hover:text-gray-800'
+              }`}
+            >
+              IL
+            </button>
+          </div>
+
+          {/* View Content */}
+          <div className="flex-1 overflow-hidden">
+            {activeView === 'ladder' ? <Canvas /> : <ILView />}
+          </div>
+        </div>
       </div>
 
       {/* Keyboard Shortcuts Dialog */}
