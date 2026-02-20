@@ -1,7 +1,7 @@
 import { useRef, useState } from 'react';
 import { useSaveLoad } from '../../hooks';
 import { useStore } from '../../store/useStore';
-import { ExportDialog } from '../Export';
+import { ExportDialog, ILExportDialog } from '../Export';
 import { ValidationStatus } from './ValidationStatus';
 import { SimulationControls } from './SimulationControls';
 
@@ -22,6 +22,7 @@ export function Toolbar({ className = '', onShowShortcuts }: ToolbarProps) {
   const nameInputRef = useRef<HTMLInputElement>(null);
   const [showSaveAs, setShowSaveAs] = useState(false);
   const [showExport, setShowExport] = useState(false);
+  const [showIL, setShowIL] = useState(false);
   const [newName, setNewName] = useState('');
   const [isEditingName, setIsEditingName] = useState(false);
   const [editingName, setEditingName] = useState('');
@@ -212,6 +213,16 @@ export function Toolbar({ className = '', onShowShortcuts }: ToolbarProps) {
         <span className="hidden sm:inline">Export</span>
       </button>
 
+      {/* View IL Button */}
+      <button
+        onClick={() => setShowIL(true)}
+        className="flex items-center gap-1 md:gap-2 px-2 md:px-3 py-1.5 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500"
+        title="View Instruction List"
+      >
+        <span className="text-base leading-none">{`{ }`}</span>
+        <span className="hidden sm:inline">IL</span>
+      </button>
+
       {/* Divider - hidden on small screens */}
       <div className="hidden lg:block w-px h-6 bg-gray-300 mx-1" />
 
@@ -239,6 +250,9 @@ export function Toolbar({ className = '', onShowShortcuts }: ToolbarProps) {
 
       {/* Export Dialog */}
       <ExportDialog isOpen={showExport} onClose={() => setShowExport(false)} />
+
+      {/* IL Export Dialog */}
+      <ILExportDialog isOpen={showIL} onClose={() => setShowIL(false)} />
 
       {/* Save As Modal */}
       {showSaveAs && (
