@@ -121,6 +121,7 @@ export interface LadderState {
   setSelectedRung: (rungId: string | null) => void;
 
   newProject: () => void;
+  loadFromTemplate: (template: import('../templates/types').LadderTemplate) => void;
   markClean: () => void;
 
   // Undo/Redo actions

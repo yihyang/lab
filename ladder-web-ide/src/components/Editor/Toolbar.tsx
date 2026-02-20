@@ -4,6 +4,8 @@ import { useStore } from '../../store/useStore';
 import { ExportDialog, ILExportDialog } from '../Export';
 import { ValidationStatus } from './ValidationStatus';
 import { SimulationControls } from './SimulationControls';
+import { TemplatePickerDialog } from '../Templates';
+import type { LadderTemplate } from '../../core/templates/types';
 
 interface ToolbarProps {
   className?: string;
@@ -14,6 +16,7 @@ export function Toolbar({ className = '', onShowShortcuts }: ToolbarProps) {
   const { handleSave, handleOpen, handleNew, isDirty } = useSaveLoad();
   const project = useStore((state) => state.project);
   const updateProjectName = useStore((state) => state.updateProjectName);
+  const loadFromTemplate = useStore((state) => state.loadFromTemplate);
   const undo = useStore((state) => state.undo);
   const redo = useStore((state) => state.redo);
   const canUndo = useStore((state) => state.canUndo);
@@ -23,6 +26,7 @@ export function Toolbar({ className = '', onShowShortcuts }: ToolbarProps) {
   const [showSaveAs, setShowSaveAs] = useState(false);
   const [showExport, setShowExport] = useState(false);
   const [showIL, setShowIL] = useState(false);
+  const [showTemplatePicker, setShowTemplatePicker] = useState(false);
   const [newName, setNewName] = useState('');
   const [isEditingName, setIsEditingName] = useState(false);
   const [editingName, setEditingName] = useState('');
@@ -30,11 +34,19 @@ export function Toolbar({ className = '', onShowShortcuts }: ToolbarProps) {
   const handleNewClick = () => {
     if (isDirty) {
       if (confirm('You have unsaved changes. Create new project anyway?')) {
-        handleNew();
+        setShowTemplatePicker(true);
       }
     } else {
-      handleNew();
+      setShowTemplatePicker(true);
     }
+  };
+
+  const handleSelectTemplate = (template: LadderTemplate) => {
+    loadFromTemplate(template);
+  };
+
+  const handleSelectEmpty = () => {
+    handleNew();
   };
 
   const handleOpenClick = () => {
@@ -253,6 +265,14 @@ export function Toolbar({ className = '', onShowShortcuts }: ToolbarProps) {
 
       {/* IL Export Dialog */}
       <ILExportDialog isOpen={showIL} onClose={() => setShowIL(false)} />
+
+      {/* Template Picker Dialog */}
+      <TemplatePickerDialog
+        isOpen={showTemplatePicker}
+        onClose={() => setShowTemplatePicker(false)}
+        onSelectTemplate={handleSelectTemplate}
+        onSelectEmpty={handleSelectEmpty}
+      />
 
       {/* Save As Modal */}
       {showSaveAs && (

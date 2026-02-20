@@ -13,6 +13,359 @@ describe('Simulation State', () => {
     vi.useRealTimers();
   });
 
+  describe('Parallel branch evaluation', () => {
+    it('should evaluate parallel paths with OR logic', () => {
+      // Create a rung with parallel branches:
+      // |--[X0]--+--[Y0]--|
+      // |        |
+      // |--[X1]--+
+      const project: LadderProject = {
+        name: 'Test',
+        version: '1.0',
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+        rungs: [{
+          id: 'rung-1',
+          elements: [
+            {
+              id: 'branch-start',
+              type: 'branch',
+              branchType: 'start',
+              branchId: 'branch-0',
+              position: { x: 0, y: 0 },
+              connections: { right: 'contact-x0', bottom: 'contact-x1' },
+            } as any,
+            {
+              id: 'contact-x0',
+              type: 'contact',
+              variable: 'X0',
+              contactType: 'no',
+              position: { x: 1, y: 0 },
+              connections: { right: 'branch-end' },
+            },
+            {
+              id: 'contact-x1',
+              type: 'contact',
+              variable: 'X1',
+              contactType: 'no',
+              position: { x: 1, y: 1 },
+              connections: { right: 'branch-end' },
+            },
+            {
+              id: 'branch-end',
+              type: 'branch',
+              branchType: 'end',
+              branchId: 'branch-0',
+              position: { x: 2, y: 0 },
+              connections: { right: 'coil-y0' },
+            } as any,
+            {
+              id: 'coil-y0',
+              type: 'coil',
+              variable: 'Y0',
+              coilType: 'output',
+              position: { x: 3, y: 0 },
+              connections: {},
+            },
+          ],
+          position: 0,
+        }],
+      };
+
+      const { setProject, toggleInput, stepSimulation } = useStore.getState();
+      setProject(project);
+
+      // Initially Y0 should be OFF
+      stepSimulation();
+      expect(useStore.getState().simulation.outputs['Y0']).toBeFalsy();
+
+      // Turn on X0 - Y0 should turn ON
+      toggleInput('X0');
+      stepSimulation();
+      expect(useStore.getState().simulation.outputs['Y0']).toBe(true);
+
+      // Turn off X0, turn on X1 - Y0 should stay ON (OR logic)
+      toggleInput('X0');
+      toggleInput('X1');
+      stepSimulation();
+      expect(useStore.getState().simulation.outputs['Y0']).toBe(true);
+
+      // Turn off X1 - Y0 should turn OFF
+      toggleInput('X1');
+      stepSimulation();
+      expect(useStore.getState().simulation.outputs['Y0']).toBe(false);
+    });
+
+    it('should handle latching circuit with parallel branch', () => {
+      // Standard start/stop with latching:
+      // |--[X0]--+--[X1]--(Y0)--|
+      // |        |
+      // |--[Y0]--+
+      const project: LadderProject = {
+        name: 'Test',
+        version: '1.0',
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+        rungs: [{
+          id: 'rung-1',
+          elements: [
+            {
+              id: 'branch-start',
+              type: 'branch',
+              branchType: 'start',
+              branchId: 'branch-0',
+              position: { x: 0, y: 0 },
+              connections: { right: 'contact-x0', bottom: 'contact-y0-latch' },
+            } as any,
+            {
+              id: 'contact-x0',
+              type: 'contact',
+              variable: 'X0',
+              contactType: 'no',
+              position: { x: 1, y: 0 },
+              connections: { right: 'branch-end' },
+            },
+            {
+              id: 'contact-y0-latch',
+              type: 'contact',
+              variable: 'Y0',
+              contactType: 'no',
+              position: { x: 1, y: 1 },
+              connections: { right: 'branch-end' },
+            },
+            {
+              id: 'branch-end',
+              type: 'branch',
+              branchType: 'end',
+              branchId: 'branch-0',
+              position: { x: 2, y: 0 },
+              connections: { right: 'contact-x1' },
+            } as any,
+            {
+              id: 'contact-x1',
+              type: 'contact',
+              variable: 'X1',
+              contactType: 'nc',
+              position: { x: 3, y: 0 },
+              connections: { right: 'coil-y0' },
+            },
+            {
+              id: 'coil-y0',
+              type: 'coil',
+              variable: 'Y0',
+              coilType: 'output',
+              position: { x: 4, y: 0 },
+              connections: {},
+            },
+          ],
+          position: 0,
+        }],
+      };
+
+      const { setProject, toggleInput, stepSimulation } = useStore.getState();
+      setProject(project);
+
+      // Initially Y0 should be OFF
+      stepSimulation();
+      expect(useStore.getState().simulation.outputs['Y0']).toBeFalsy();
+
+      // Press X0 (Start) - Y0 should turn ON
+      toggleInput('X0');
+      stepSimulation();
+      expect(useStore.getState().simulation.outputs['Y0']).toBe(true);
+
+      // Release X0 - Y0 should stay ON (latching via Y0 contact)
+      toggleInput('X0');
+      stepSimulation();
+      expect(useStore.getState().simulation.outputs['Y0']).toBe(true);
+
+      // Press X1 (Stop) - Y0 should turn OFF (NC contact opens)
+      toggleInput('X1');
+      stepSimulation();
+      expect(useStore.getState().simulation.outputs['Y0']).toBe(false);
+    });
+  });
+
+  describe('SET/RESET coils with memory bits', () => {
+    it('should SET memory bit M0 and keep it ON', () => {
+      const project: LadderProject = {
+        name: 'Test',
+        version: '1.0',
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+        rungs: [{
+          id: 'rung-1',
+          elements: [
+            {
+              id: 'contact-x0',
+              type: 'contact',
+              variable: 'X0',
+              contactType: 'no',
+              position: { x: 0, y: 0 },
+              connections: { right: 'coil-m0-set' },
+            },
+            {
+              id: 'coil-m0-set',
+              type: 'coil',
+              variable: 'M0',
+              coilType: 'set',
+              position: { x: 1, y: 0 },
+              connections: {},
+            },
+          ],
+          position: 0,
+        }],
+      };
+
+      const { setProject, toggleInput, stepSimulation } = useStore.getState();
+      setProject(project);
+
+      // Press X0 to SET M0
+      toggleInput('X0');
+      stepSimulation();
+      expect(useStore.getState().simulation.internalBits['M0']).toBe(true);
+
+      // Release X0 - M0 should stay ON (SET is latching)
+      toggleInput('X0');
+      stepSimulation();
+      expect(useStore.getState().simulation.internalBits['M0']).toBe(true);
+    });
+
+    it('should RESET memory bit M0', () => {
+      const project: LadderProject = {
+        name: 'Test',
+        version: '1.0',
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+        rungs: [
+          {
+            id: 'rung-1',
+            elements: [
+              {
+                id: 'contact-x0',
+                type: 'contact',
+                variable: 'X0',
+                contactType: 'no',
+                position: { x: 0, y: 0 },
+                connections: { right: 'coil-m0-set' },
+              },
+              {
+                id: 'coil-m0-set',
+                type: 'coil',
+                variable: 'M0',
+                coilType: 'set',
+                position: { x: 1, y: 0 },
+                connections: {},
+              },
+            ],
+            position: 0,
+          },
+          {
+            id: 'rung-2',
+            elements: [
+              {
+                id: 'contact-x1',
+                type: 'contact',
+                variable: 'X1',
+                contactType: 'no',
+                position: { x: 0, y: 0 },
+                connections: { right: 'coil-m0-reset' },
+              },
+              {
+                id: 'coil-m0-reset',
+                type: 'coil',
+                variable: 'M0',
+                coilType: 'reset',
+                position: { x: 1, y: 0 },
+                connections: {},
+              },
+            ],
+            position: 1,
+          },
+        ],
+      };
+
+      const { setProject, toggleInput, stepSimulation } = useStore.getState();
+      setProject(project);
+
+      // SET M0
+      toggleInput('X0');
+      stepSimulation();
+      expect(useStore.getState().simulation.internalBits['M0']).toBe(true);
+
+      // RESET M0
+      toggleInput('X0');
+      toggleInput('X1');
+      stepSimulation();
+      expect(useStore.getState().simulation.internalBits['M0']).toBe(false);
+    });
+
+    it('should use memory bit to control output', () => {
+      const project: LadderProject = {
+        name: 'Test',
+        version: '1.0',
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+        rungs: [
+          {
+            id: 'rung-1',
+            elements: [
+              {
+                id: 'contact-x0',
+                type: 'contact',
+                variable: 'X0',
+                contactType: 'no',
+                position: { x: 0, y: 0 },
+                connections: { right: 'coil-m0-set' },
+              },
+              {
+                id: 'coil-m0-set',
+                type: 'coil',
+                variable: 'M0',
+                coilType: 'set',
+                position: { x: 1, y: 0 },
+                connections: {},
+              },
+            ],
+            position: 0,
+          },
+          {
+            id: 'rung-2',
+            elements: [
+              {
+                id: 'contact-m0',
+                type: 'contact',
+                variable: 'M0',
+                contactType: 'no',
+                position: { x: 0, y: 0 },
+                connections: { right: 'coil-y0' },
+              },
+              {
+                id: 'coil-y0',
+                type: 'coil',
+                variable: 'Y0',
+                coilType: 'output',
+                position: { x: 1, y: 0 },
+                connections: {},
+              },
+            ],
+            position: 1,
+          },
+        ],
+      };
+
+      const { setProject, toggleInput, stepSimulation } = useStore.getState();
+      setProject(project);
+
+      // SET M0
+      toggleInput('X0');
+      stepSimulation();
+
+      // Y0 should follow M0
+      expect(useStore.getState().simulation.outputs['Y0']).toBe(true);
+    });
+  });
+
   describe('Initial state', () => {
     it('should have correct initial simulation state', () => {
       const { simulation } = useStore.getState();

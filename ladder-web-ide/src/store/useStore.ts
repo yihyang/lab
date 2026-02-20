@@ -8,6 +8,8 @@ import type {
   SimulationSpeed,
 } from '../core/schema/types';
 import { createEmptyProject } from '../core/schema/types';
+import type { LadderTemplate } from '../core/templates/types';
+import { createProjectFromTemplate } from '../core/templates/templateUtils';
 
 // Generate unique ID
 const generateId = (prefix: string): string => {
@@ -427,6 +429,21 @@ export const useStore = create<LadderState>((set, get) => ({
     });
   },
 
+  loadFromTemplate: (template: LadderTemplate) => {
+    const newProj = createProjectFromTemplate(template);
+    clearHistory();
+    saveToHistory(newProj);
+    set({
+      project: newProj,
+      selectedElementId: null,
+      selectedRungId: null,
+      isDirty: true, // Mark as dirty since it's a new project from template
+      canUndo: false,
+      canRedo: false,
+      simulation: createEmptySimulationState(),
+    });
+  },
+
   markClean: () => {
     set({ isDirty: false });
   },
@@ -515,113 +532,240 @@ export const useStore = create<LadderState>((set, get) => ({
     // Initialize power flow for each rung
     const newPowerFlow: Record<string, boolean> = {};
     const newOutputs: Record<string, boolean> = { ...simulation.outputs };
+    const newInternalBits: Record<string, boolean> = { ...simulation.internalBits };
     const newTimers = { ...simulation.timers };
     const newCounters = { ...simulation.counters };
 
+    // Helper to check variable state from current cycle's updates
+    const getVariableState = (variable: string): boolean => {
+      if (variable.startsWith('X')) {
+        return simulation.inputs[variable] ?? false;
+      }
+      if (variable.startsWith('Y')) {
+        return newOutputs[variable] ?? false;
+      }
+      if (variable.startsWith('M')) {
+        return newInternalBits[variable] ?? false;
+      }
+      if (variable.startsWith('T')) {
+        return newTimers[variable]?.done ?? false;
+      }
+      if (variable.startsWith('C')) {
+        return newCounters[variable]?.done ?? false;
+      }
+      return false;
+    };
+
     project.rungs.forEach((rung) => {
-      // Sort elements by position
-      const sortedElements = [...rung.elements].sort((a, b) => a.position.x - b.position.x);
+      // Build element lookup by ID
+      const elementById = new Map(rung.elements.map(e => [e.id, e]));
 
-      let powerFlow = true; // Power from left rail
-
-      sortedElements.forEach((element) => {
-        const { type, variable } = element;
-
-        // Get input state for this element
-        const getInputState = (): boolean => {
-          if (variable.startsWith('X')) {
-            return simulation.inputs[variable] ?? false;
-          }
-          if (variable.startsWith('Y')) {
-            return simulation.outputs[variable] ?? false;
-          }
-          if (variable.startsWith('M')) {
-            return simulation.internalBits[variable] ?? false;
-          }
-          if (variable.startsWith('T')) {
-            return simulation.timers[variable]?.done ?? false;
-          }
-          if (variable.startsWith('C')) {
-            return simulation.counters[variable]?.done ?? false;
-          }
-          return false;
-        };
-
-        // Evaluate element based on type
-        switch (type) {
-          case 'contact': {
-            const inputState = getInputState();
-            const isNegated = (element as any).contactType === 'nc';
-            const contactClosed = isNegated ? !inputState : inputState;
-            powerFlow = powerFlow && contactClosed;
-            break;
-          }
-          case 'coil': {
-            if (powerFlow) {
-              const coilType = (element as any).coilType;
-              if (coilType === 'set') {
-                newOutputs[variable] = true;
-              } else if (coilType === 'reset') {
-                newOutputs[variable] = false;
-              } else {
-                newOutputs[variable] = true;
-              }
-            } else {
-              // Output coil turns off when no power
-              const coilType = (element as any).coilType;
-              if (coilType === 'output') {
-                newOutputs[variable] = false;
-              }
-            }
-            break;
-          }
-          case 'timer': {
-            // Initialize timer if not exists
-            if (!newTimers[variable]) {
-              const preset = (element as any).preset ?? 1000;
-              newTimers[variable] = { elapsed: 0, preset, done: false, running: false };
-            }
-
-            if (powerFlow) {
-              newTimers[variable].running = true;
-              newTimers[variable].elapsed += 100; // Step by 100ms
-              if (newTimers[variable].elapsed >= newTimers[variable].preset) {
-                newTimers[variable].done = true;
-              }
-            } else {
-              // Timer resets when power is lost
-              newTimers[variable].elapsed = 0;
-              newTimers[variable].done = false;
-              newTimers[variable].running = false;
-            }
-            break;
-          }
-          case 'counter': {
-            // Initialize counter if not exists
-            if (!newCounters[variable]) {
-              const preset = (element as any).preset ?? 10;
-              newCounters[variable] = { current: 0, preset, done: false };
-            }
-
-            if (powerFlow) {
-              // Counter increments on rising edge (simplified)
-              const counterType = (element as any).counterType;
-              if (counterType === 'CTU') {
-                newCounters[variable].current += 1;
-                if (newCounters[variable].current >= newCounters[variable].preset) {
-                  newCounters[variable].done = true;
-                }
-              } else if (counterType === 'CTD') {
-                newCounters[variable].current = Math.max(0, newCounters[variable].current - 1);
-              }
-            }
-            break;
+      // Find branch start/end pairs and group parallel paths
+      const branchGroups = new Map<string, { start: string; end: string; branchId: string }>();
+      rung.elements.forEach(el => {
+        if (el.type === 'branch') {
+          const branchEl = el as any;
+          if (branchEl.branchType === 'start') {
+            const existing = branchGroups.get(branchEl.branchId) || { start: '', end: '', branchId: branchEl.branchId };
+            existing.start = el.id;
+            branchGroups.set(branchEl.branchId, existing);
+          } else if (branchEl.branchType === 'end') {
+            const existing = branchGroups.get(branchEl.branchId) || { start: '', end: '', branchId: branchEl.branchId };
+            existing.end = el.id;
+            branchGroups.set(branchEl.branchId, existing);
           }
         }
-
-        // Record power flow at this element
-        newPowerFlow[element.id] = powerFlow;
       });
+
+      // Evaluate a path from an element to the branch end (or to coil if no branch)
+      const evaluatePath = (startElementId: string, incomingPower: boolean): { power: boolean; endId: string | null } => {
+        let currentId: string | null = startElementId;
+        let powerFlow = incomingPower;
+
+        while (currentId) {
+          const element = elementById.get(currentId);
+          if (!element) break;
+
+          const { type, variable } = element;
+
+          // Skip branch elements in path evaluation (they're structural)
+          if (type === 'branch') {
+            const branchEl = element as any;
+            if (branchEl.branchType === 'start') {
+              // Follow right connection (upper path)
+              currentId = element.connections.right || null;
+              continue;
+            }
+            if (branchEl.branchType === 'end') {
+              // Reached end of branch
+              return { power: powerFlow, endId: currentId };
+            }
+          }
+
+          // Evaluate element based on type
+          switch (type) {
+            case 'contact': {
+              const inputState = getVariableState(variable);
+              const isNegated = (element as any).contactType === 'nc';
+              const contactClosed = isNegated ? !inputState : inputState;
+              powerFlow = powerFlow && contactClosed;
+              break;
+            }
+            case 'coil': {
+              if (powerFlow) {
+                const coilType = (element as any).coilType;
+                if (coilType === 'set') {
+                  // SET coil - write to appropriate state
+                  if (variable.startsWith('M')) {
+                    newInternalBits[variable] = true;
+                  } else {
+                    newOutputs[variable] = true;
+                  }
+                } else if (coilType === 'reset') {
+                  // RESET coil - write to appropriate state
+                  if (variable.startsWith('M')) {
+                    newInternalBits[variable] = false;
+                  } else {
+                    newOutputs[variable] = false;
+                  }
+                } else {
+                  // Output coil
+                  newOutputs[variable] = true;
+                }
+              } else {
+                // Output coil turns off when no power
+                const coilType = (element as any).coilType;
+                if (coilType === 'output') {
+                  newOutputs[variable] = false;
+                }
+              }
+              break;
+            }
+            case 'timer': {
+              // Initialize timer if not exists
+              if (!newTimers[variable]) {
+                const preset = (element as any).preset ?? 1000;
+                newTimers[variable] = { elapsed: 0, preset, done: false, running: false };
+              }
+
+              if (powerFlow) {
+                newTimers[variable].running = true;
+                newTimers[variable].elapsed += 100; // Step by 100ms
+                if (newTimers[variable].elapsed >= newTimers[variable].preset) {
+                  newTimers[variable].done = true;
+                }
+              } else {
+                // Timer resets when power is lost
+                newTimers[variable].elapsed = 0;
+                newTimers[variable].done = false;
+                newTimers[variable].running = false;
+              }
+              break;
+            }
+            case 'counter': {
+              // Initialize counter if not exists
+              if (!newCounters[variable]) {
+                const preset = (element as any).preset ?? 10;
+                newCounters[variable] = { current: 0, preset, done: false };
+              }
+
+              if (powerFlow) {
+                // Counter increments on rising edge (simplified)
+                const counterType = (element as any).counterType;
+                if (counterType === 'CTU') {
+                  newCounters[variable].current += 1;
+                  if (newCounters[variable].current >= newCounters[variable].preset) {
+                    newCounters[variable].done = true;
+                  }
+                } else if (counterType === 'CTD') {
+                  newCounters[variable].current = Math.max(0, newCounters[variable].current - 1);
+                }
+              }
+              break;
+            }
+          }
+
+          // Record power flow at this element
+          newPowerFlow[element.id] = powerFlow;
+
+          // Move to next element (right connection)
+          currentId = element.connections.right || null;
+        }
+
+        return { power: powerFlow, endId: null };
+      };
+
+      // Find branch start elements
+      const branchStarts = rung.elements.filter(
+        el => el.type === 'branch' && (el as any).branchType === 'start'
+      );
+
+      if (branchStarts.length > 0) {
+        // Process rung with branches
+        branchStarts.forEach(branchStart => {
+          const branchId = (branchStart as any).branchId;
+
+          // Find all parallel paths from this branch start
+          // Upper path: branchStart -> right connection
+          // Lower paths: branchStart -> bottom connection (and chain down)
+
+          const paths: boolean[] = [];
+
+          // Evaluate upper path (right from branch start)
+          if (branchStart.connections.right) {
+            const result = evaluatePath(branchStart.connections.right, true);
+            paths.push(result.power);
+          }
+
+          // Find lower paths by following bottom connections
+          let lowerElementId = branchStart.connections.bottom;
+          while (lowerElementId) {
+            const lowerElement = elementById.get(lowerElementId);
+            if (!lowerElement) break;
+
+            // Evaluate this parallel path
+            const result = evaluatePath(lowerElementId, true);
+            paths.push(result.power);
+
+            // Move to next lower path (if any)
+            lowerElementId = lowerElement.connections.bottom;
+          }
+
+          // OR all paths together - if any path has power, the branch outputs power
+          const branchOutputPower = paths.some(p => p);
+
+          // Find branch end and continue evaluation
+          const branchEnd = rung.elements.find(
+            el => el.type === 'branch' &&
+            (el as any).branchType === 'end' &&
+            (el as any).branchId === branchId
+          );
+
+          if (branchEnd && branchEnd.connections.right) {
+            // Continue evaluation after branch end
+            evaluatePath(branchEnd.connections.right, branchOutputPower);
+          }
+
+          // Record power at branch elements
+          newPowerFlow[branchStart.id] = true; // Branch start always has power from rail
+          if (branchEnd) {
+            newPowerFlow[branchEnd.id] = branchOutputPower;
+          }
+        });
+      } else {
+        // No branches - simple series evaluation
+        // Find elements connected to left rail (no left connection)
+        const startElements = rung.elements.filter(
+          el => el.type !== 'branch' && !el.connections.left
+        );
+
+        // Sort by x position and start from the leftmost
+        const sortedStarts = [...startElements].sort((a, b) => a.position.x - b.position.x);
+
+        if (sortedStarts.length > 0) {
+          evaluatePath(sortedStarts[0].id, true);
+        }
+      }
     });
 
     set({
@@ -631,7 +775,7 @@ export const useStore = create<LadderState>((set, get) => ({
         cycleCount: simulation.cycleCount + 1,
         inputs: { ...simulation.inputs },
         outputs: newOutputs,
-        internalBits: { ...simulation.internalBits },
+        internalBits: newInternalBits,
         timers: newTimers,
         counters: newCounters,
         powerFlow: newPowerFlow,
