@@ -47,3 +47,12 @@ logs/
 dist/
 build/
 out/
+
+
+# Virtual Environment
+venv/
+
+# ML Model outputs
+model-tuning/outputs/
+*.safetensors
+*.gguf
