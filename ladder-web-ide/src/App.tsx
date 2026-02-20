@@ -90,13 +90,6 @@ function AppContent() {
         return;
       }
 
-      // Add rung: Ctrl+R
-      if ((e.ctrlKey || e.metaKey) && e.key === 'r') {
-        e.preventDefault();
-        addRung();
-        return;
-      }
-
       // Copy: Ctrl+C
       if ((e.ctrlKey || e.metaKey) && e.key === 'c' && !e.shiftKey) {
         e.preventDefault();

@@ -42,7 +42,6 @@ const shortcutGroups: ShortcutGroup[] = [
   {
     category: 'Elements',
     shortcuts: [
-      { keys: 'Ctrl+R', action: 'Add new rung' },
       { keys: 'Ctrl+A', action: 'Select all elements' },
     ],
   },

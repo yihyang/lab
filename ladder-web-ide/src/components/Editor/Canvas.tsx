@@ -520,7 +520,7 @@ export function Canvas({ className = '' }: CanvasProps) {
           <button
             onClick={() => addRung()}
             className="flex items-center gap-1 px-3 py-1.5 text-sm font-medium text-white bg-blue-600 rounded hover:bg-blue-700 shadow"
-            title="Add new rung (Ctrl+R)"
+            title="Add new rung"
           >
             <span className="text-base leading-none">+</span>
             <span>Add Rung</span>
