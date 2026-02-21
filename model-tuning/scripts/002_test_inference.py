@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Step 3: Test Base Model Inference
+Step 2: Test Base Model Inference
 
 Downloads a small model and tests text generation.
 This verifies you can load and run models before fine-tuning.

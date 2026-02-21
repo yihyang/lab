@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Step 6: Validate Fine-Tuned Model
+Step 5: Validate Fine-Tuned Model
 
 Compares outputs from the base model and fine-tuned model
 to see if the fine-tuning had the desired effect.

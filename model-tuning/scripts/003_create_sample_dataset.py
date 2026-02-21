@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Step 4: Create Sample Training Dataset
+Step 3: Create Sample Training Dataset
 
 Creates a small JSONL dataset for fine-tuning experiments.
 This uses the Alpaca instruction format.

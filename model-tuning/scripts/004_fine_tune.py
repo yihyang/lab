@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Step 5: Run Fine-Tuning with MLX-LM
+Step 4: Run Fine-Tuning with MLX-LM
 
 Fine-tunes a model using LoRA on the sample dataset.
 """

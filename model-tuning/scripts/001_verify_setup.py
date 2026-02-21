@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Step 2: Verify MLX Setup
+Step 1: Verify MLX Setup
 
 This script checks that MLX is installed and can access the Metal GPU.
 """
