@@ -2,21 +2,22 @@ import { memo } from 'react';
 import { Handle, Position } from 'reactflow';
 import type { NodeProps } from 'reactflow';
 import type { LadderNodeData, CoilElement } from '../../core/schema/types';
+import { OutputCoilIcon, SetCoilIcon, ResetCoilIcon } from '../Palette/PaletteIcons';
 
 function CoilNodeComponent({ data, selected }: NodeProps<LadderNodeData>) {
   const element = data.element as CoilElement;
   const hasPower = data.hasPower ?? false;
 
-  const getSymbol = () => {
+  const getIcon = () => {
     switch (element.coilType) {
       case 'output':
-        return '( )';
+        return <OutputCoilIcon className="w-8 h-5 text-amber-700" />;
       case 'set':
-        return '(S)';
+        return <SetCoilIcon className="w-8 h-5 text-amber-700" />;
       case 'reset':
-        return '(R)';
+        return <ResetCoilIcon className="w-8 h-5 text-amber-700" />;
       default:
-        return '( )';
+        return <OutputCoilIcon className="w-8 h-5 text-amber-700" />;
     }
   };
 
@@ -44,9 +45,7 @@ function CoilNodeComponent({ data, selected }: NodeProps<LadderNodeData>) {
 
       {/* Symbol and Variable */}
       <div className="flex items-center gap-1 px-2">
-        <span className="text-lg font-mono font-bold text-amber-700">
-          {getSymbol()}
-        </span>
+        {getIcon()}
         <input
           type="text"
           value={element.variable}

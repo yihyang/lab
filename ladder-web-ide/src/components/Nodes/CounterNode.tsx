@@ -2,6 +2,7 @@ import { memo } from 'react';
 import { Handle, Position } from 'reactflow';
 import type { NodeProps } from 'reactflow';
 import type { LadderNodeData, CounterElement } from '../../core/schema/types';
+import { CTUIcon, CTDIcon } from '../Palette/PaletteIcons';
 
 function CounterNodeComponent({ data, selected }: NodeProps<LadderNodeData>) {
   const element = data.element as CounterElement;
@@ -11,15 +12,15 @@ function CounterNodeComponent({ data, selected }: NodeProps<LadderNodeData>) {
     data.onVariableChange?.(element.id, e.target.value);
   };
 
-  // Get counter symbol based on type
-  const getCounterSymbol = () => {
+  // Get counter icon based on type
+  const getCounterIcon = () => {
     switch (element.counterType) {
       case 'CTU':
-        return 'CTU'; // Count Up
+        return <CTUIcon className="w-8 h-5 text-gray-700" />;
       case 'CTD':
-        return 'CTD'; // Count Down
+        return <CTDIcon className="w-8 h-5 text-gray-700" />;
       default:
-        return 'CTU';
+        return <CTUIcon className="w-8 h-5 text-gray-700" />;
     }
   };
 
@@ -44,9 +45,7 @@ function CounterNodeComponent({ data, selected }: NodeProps<LadderNodeData>) {
 
       {/* Counter Type Label */}
       <div className="flex items-center gap-1 px-2">
-        <span className="text-xs font-bold text-gray-600 bg-gray-100 px-1 rounded">
-          {getCounterSymbol()}
-        </span>
+        {getCounterIcon()}
         <input
           type="text"
           value={element.variable}

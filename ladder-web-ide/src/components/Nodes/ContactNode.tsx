@@ -2,6 +2,7 @@ import { memo } from 'react';
 import { Handle, Position } from 'reactflow';
 import type { NodeProps } from 'reactflow';
 import type { LadderNodeData, ContactElement } from '../../core/schema/types';
+import { NOContactIcon, NCContactIcon } from '../Palette/PaletteIcons';
 
 function ContactNodeComponent({ data, selected }: NodeProps<LadderNodeData>) {
   const element = data.element as ContactElement;
@@ -33,9 +34,11 @@ function ContactNodeComponent({ data, selected }: NodeProps<LadderNodeData>) {
 
       {/* Symbol */}
       <div className="flex items-center gap-1 px-2">
-        <span className="text-lg font-mono">
-          {isNO ? '┤ ─' : '┤/├'}
-        </span>
+        {isNO ? (
+          <NOContactIcon className="w-8 h-5 text-gray-700" />
+        ) : (
+          <NCContactIcon className="w-8 h-5 text-gray-700" />
+        )}
         <input
           type="text"
           value={element.variable}

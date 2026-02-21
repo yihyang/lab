@@ -2,6 +2,7 @@ import { memo } from 'react';
 import { Handle, Position } from 'reactflow';
 import type { NodeProps } from 'reactflow';
 import type { LadderNodeData, TimerElement } from '../../core/schema/types';
+import { TONIcon, TOFIcon, TPIcon } from '../Palette/PaletteIcons';
 
 function TimerNodeComponent({ data, selected }: NodeProps<LadderNodeData>) {
   const element = data.element as TimerElement;
@@ -11,17 +12,17 @@ function TimerNodeComponent({ data, selected }: NodeProps<LadderNodeData>) {
     data.onVariableChange?.(element.id, e.target.value);
   };
 
-  // Get timer symbol based on type
-  const getTimerSymbol = () => {
+  // Get timer icon based on type
+  const getTimerIcon = () => {
     switch (element.timerType) {
       case 'TON':
-        return 'TON'; // On-Delay
+        return <TONIcon className="w-8 h-5 text-gray-700" />;
       case 'TOF':
-        return 'TOF'; // Off-Delay
+        return <TOFIcon className="w-8 h-5 text-gray-700" />;
       case 'TP':
-        return 'TP'; // Pulse
+        return <TPIcon className="w-8 h-5 text-gray-700" />;
       default:
-        return 'TON';
+        return <TONIcon className="w-8 h-5 text-gray-700" />;
     }
   };
 
@@ -46,9 +47,7 @@ function TimerNodeComponent({ data, selected }: NodeProps<LadderNodeData>) {
 
       {/* Timer Type Label */}
       <div className="flex items-center gap-1 px-2">
-        <span className="text-xs font-bold text-gray-600 bg-gray-100 px-1 rounded">
-          {getTimerSymbol()}
-        </span>
+        {getTimerIcon()}
         <input
           type="text"
           value={element.variable}

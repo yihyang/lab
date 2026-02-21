@@ -2,21 +2,22 @@ import { memo } from 'react';
 import { Handle, Position } from 'reactflow';
 import type { NodeProps } from 'reactflow';
 import type { LadderNodeData, BranchElement } from '../../core/schema/types';
+import { ORStartIcon, OREndIcon } from '../Palette/PaletteIcons';
 
 function BranchNodeComponent({ data, selected }: NodeProps<LadderNodeData>) {
   const element = data.element as BranchElement;
 
-  // Get branch symbol based on type
-  const getBranchSymbol = () => {
+  // Get branch icon based on type
+  const getBranchIcon = () => {
     switch (element.branchType) {
       case 'start':
-        return '┌'; // Branch start (opens parallel)
+        return <ORStartIcon className="w-8 h-5 text-gray-700" />;
       case 'end':
-        return '┐'; // Branch end (closes parallel)
+        return <OREndIcon className="w-8 h-5 text-gray-700" />;
       case 'junction':
-        return '┬'; // Junction (vertical connection)
+        return <ORStartIcon className="w-8 h-5 text-gray-700" />; // Fallback to start
       default:
-        return '┌';
+        return <ORStartIcon className="w-8 h-5 text-gray-700" />;
     }
   };
 
@@ -61,9 +62,7 @@ function BranchNodeComponent({ data, selected }: NodeProps<LadderNodeData>) {
 
       {/* Branch Symbol */}
       <div className="flex items-center gap-1">
-        <span className="text-2xl font-mono text-gray-700">
-          {getBranchSymbol()}
-        </span>
+        {getBranchIcon()}
       </div>
 
       {/* Label */}
