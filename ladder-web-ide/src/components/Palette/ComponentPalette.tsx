@@ -1,10 +1,27 @@
-import type { DragEvent } from 'react';
+import type { DragEvent, ComponentType } from 'react';
+import type { SVGProps } from 'react';
 import type { ContactType, CoilType, TimerType, CounterType, BranchType } from '../../core/schema/types';
+import {
+  NOContactIcon,
+  NCContactIcon,
+  OutputCoilIcon,
+  SetCoilIcon,
+  ResetCoilIcon,
+  TONIcon,
+  TOFIcon,
+  TPIcon,
+  CTUIcon,
+  CTDIcon,
+  ORStartIcon,
+  OREndIcon,
+} from './PaletteIcons';
+
+type IconComponent = ComponentType<SVGProps<SVGSVGElement> & { className?: string }>;
 
 interface PaletteItem {
   type: 'contact' | 'coil' | 'timer' | 'counter' | 'branch';
   label: string;
-  symbol: string;
+  icon: IconComponent;
   subType: ContactType | CoilType | TimerType | CounterType | BranchType;
   description: string;
 }
@@ -13,84 +30,84 @@ const paletteItems: PaletteItem[] = [
   {
     type: 'contact',
     label: 'NO Contact',
-    symbol: '┤ ─',
+    icon: NOContactIcon,
     subType: 'no',
     description: 'Normally Open contact',
   },
   {
     type: 'contact',
     label: 'NC Contact',
-    symbol: '┤/├',
+    icon: NCContactIcon,
     subType: 'nc',
     description: 'Normally Closed contact',
   },
   {
     type: 'coil',
     label: 'Output Coil',
-    symbol: '( )',
+    icon: OutputCoilIcon,
     subType: 'output',
     description: 'Output coil',
   },
   {
     type: 'coil',
     label: 'Set Coil',
-    symbol: '(S)',
+    icon: SetCoilIcon,
     subType: 'set',
     description: 'Set (latch) coil',
   },
   {
     type: 'coil',
     label: 'Reset Coil',
-    symbol: '(R)',
+    icon: ResetCoilIcon,
     subType: 'reset',
     description: 'Reset (unlatch) coil',
   },
   {
     type: 'timer',
     label: 'Timer ON',
-    symbol: 'TON',
+    icon: TONIcon,
     subType: 'TON',
     description: 'Timer On-Delay',
   },
   {
     type: 'timer',
     label: 'Timer OFF',
-    symbol: 'TOF',
+    icon: TOFIcon,
     subType: 'TOF',
     description: 'Timer Off-Delay',
   },
   {
     type: 'timer',
     label: 'Timer Pulse',
-    symbol: 'TP',
+    icon: TPIcon,
     subType: 'TP',
     description: 'Timer Pulse',
   },
   {
     type: 'counter',
     label: 'Counter Up',
-    symbol: 'CTU',
+    icon: CTUIcon,
     subType: 'CTU',
     description: 'Count Up counter',
   },
   {
     type: 'counter',
     label: 'Counter Down',
-    symbol: 'CTD',
+    icon: CTDIcon,
     subType: 'CTD',
     description: 'Count Down counter',
   },
   {
     type: 'branch',
     label: 'OR Start',
-    symbol: '┌',
+    icon: ORStartIcon,
     subType: 'start',
     description: 'Branch start (parallel path)',
   },
   {
     type: 'branch',
     label: 'OR End',
-    symbol: '┐',
+    icon: OREndIcon,
     subType: 'end',
     description: 'Branch end (close parallel)',
   },
@@ -117,26 +134,29 @@ export function ComponentPalette({ className = '' }: ComponentPaletteProps) {
   const branches = paletteItems.filter(item => item.type === 'branch');
 
   const renderItems = (items: PaletteItem[]) => (
-    items.map((item) => (
-      <div
-        key={`${item.type}-${item.subType}`}
-        draggable
-        onDragStart={(e) => onDragStart(e, item)}
-        className="
-          flex items-center gap-2 p-2
-          bg-white border border-gray-300 rounded
-          cursor-grab hover:border-blue-400 hover:shadow-sm
-          transition-all duration-150
-          active:cursor-grabbing
-        "
-        title={item.description}
-      >
-        <span className="text-lg font-mono text-gray-700 w-10">
-          {item.symbol}
-        </span>
-        <span className="text-sm text-gray-600">{item.label}</span>
-      </div>
-    ))
+    items.map((item) => {
+      const Icon = item.icon;
+      return (
+        <div
+          key={`${item.type}-${item.subType}`}
+          draggable
+          onDragStart={(e) => onDragStart(e, item)}
+          className="
+            flex items-center gap-2 p-2
+            bg-white border border-gray-300 rounded
+            cursor-grab hover:border-blue-400 hover:shadow-sm
+            transition-all duration-150
+            active:cursor-grabbing
+          "
+          title={item.description}
+        >
+          <span className="text-gray-700 w-10 flex items-center justify-center">
+            <Icon className="w-10 h-6" />
+          </span>
+          <span className="text-sm text-gray-600">{item.label}</span>
+        </div>
+      );
+    })
   );
 
   return (
