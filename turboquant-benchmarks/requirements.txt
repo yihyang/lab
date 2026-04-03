@@ -1,0 +1,19 @@
+# TurboQuant KV cache quantization
+# Note: Use [hf] only on Mac - triton is CUDA-only
+turboquant-kv[hf]
+
+# Core ML
+torch>=2.0
+transformers>=4.40
+accelerate>=0.20.0
+
+# Benchmarks & evaluation
+datasets>=2.14.0
+tqdm>=4.65.0
+numpy>=1.24.0
+
+# Memory profiling
+psutil>=5.9.0
+
+# Optional: for NVIDIA GPUs only
+# pip install turboquant-kv[triton]  # Uncomment if you have CUDA
