@@ -10,7 +10,7 @@ This repository contains demos, POCs, experiments, and learnings. The code insid
 
 | Project | Description | Tech Stack | Status |
 |---------|-------------|------------|--------|
-| <!-- Example: | --> | <!-- Example: | --> | <!-- Example: --> |
+| [turboquant-benchmarks](./turboquant-benchmarks/) | KV cache quantization experiments for LLM inference | Python, PyTorch, Triton | Planning |
 
 ## Repository Structure
 
