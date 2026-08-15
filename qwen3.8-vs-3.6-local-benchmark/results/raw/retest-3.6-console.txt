@@ -1,0 +1,3 @@
+cd1: correct=False tests=None tok=32768 finish=length note=no code block 844.54s
+cd2: correct=False tests=None tok=32768 finish=length note=no code block 814.91s
+WROTE results/raw/retest-3.6.json

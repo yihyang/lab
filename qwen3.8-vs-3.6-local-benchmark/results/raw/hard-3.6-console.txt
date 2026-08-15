@@ -1,0 +1,38 @@
+=== HARD BENCH qwen3.6-27b ===
+  [qwen3.6-27b] hm1  hard_math  correct=True tok=1880 53.53s
+  [qwen3.6-27b] hm2  hard_math  correct=True tok=2375 57.41s
+  [qwen3.6-27b] hm3  hard_math  correct=True tok=868 22.9s
+  [qwen3.6-27b] hm4  hard_math  correct=True tok=736 19.43s
+  [qwen3.6-27b] hm5  hard_math  correct=True tok=579 15.82s
+  [qwen3.6-27b] hm6  hard_math  correct=True tok=710 18.64s
+  [qwen3.6-27b] hm7  hard_math  correct=True tok=966 25.16s
+  [qwen3.6-27b] tr1  trap       correct=True tok=309 9.6s
+  [qwen3.6-27b] tr2  trap       correct=True tok=848 21.79s
+  [qwen3.6-27b] tr3  trap       correct=True tok=347 10.4s
+  [qwen3.6-27b] tr4  trap       correct=True tok=388 10.86s
+  [qwen3.6-27b] cd1  code_exec   correct=False tests=None tok=8192 195.66s
+  [qwen3.6-27b] cd2  code_exec   correct=False tests=None tok=8192 198.22s
+  [qwen3.6-27b] cd3  code_exec   correct=True tests=4/4 tok=2065 52.9s
+  [qwen3.6-27b] cd4  code_exec   correct=True tests=4/4 tok=839 22.54s
+  [qwen3.6-27b] cd5  code_exec   correct=True tests=3/3 tok=7494 178.97s
+  [qwen3.6-27b] cd6  code_exec   correct=True tests=3/3 tok=2071 54.94s
+  [qwen3.6-27b] f1   format     correct=True tok=504 15.82s
+  [qwen3.6-27b] f2   format     correct=True tok=612 16.44s
+  [qwen3.6-27b] f3   format     correct=True tok=183 6.54s
+  [qwen3.6-27b] f4   format     correct=True tok=929 23.41s
+  [qwen3.6-27b] ln1  longctx_multi correct=True ptok=84105 77.43s
+{
+  "label": "qwen3.6-27b",
+  "total_tasks": 22,
+  "correct": 20,
+  "accuracy_pct": 90.9,
+  "by_category": {
+    "hard_math": "7/7",
+    "trap": "4/4",
+    "code_exec": "4/6",
+    "format": "4/4",
+    "longctx_multi": "1/1"
+  },
+  "total_completion_tokens": 41731,
+  "bench_wall_s": 1108.4
+}

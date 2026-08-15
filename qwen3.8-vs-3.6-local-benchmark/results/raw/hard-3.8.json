@@ -1,0 +1,418 @@
+{
+  "summary": {
+    "label": "qwen3.8-27b",
+    "total_tasks": 22,
+    "correct": 22,
+    "accuracy_pct": 100.0,
+    "by_category": {
+      "hard_math": "7/7",
+      "trap": "4/4",
+      "code_exec": "6/6",
+      "format": "4/4",
+      "longctx_multi": "1/1"
+    },
+    "total_completion_tokens": 4493,
+    "bench_wall_s": 274.1
+  },
+  "results": [
+    {
+      "id": "hm1",
+      "category": "hard_math",
+      "answer": "400",
+      "correct": true,
+      "completion_tokens": 269,
+      "prompt_tokens": 84,
+      "finish": "stop",
+      "wall_s": 17.86,
+      "expected": "400"
+    },
+    {
+      "id": "hm2",
+      "category": "hard_math",
+      "answer": "429",
+      "correct": true,
+      "completion_tokens": 624,
+      "prompt_tokens": 76,
+      "finish": "stop",
+      "wall_s": 18.79,
+      "expected": "429"
+    },
+    {
+      "id": "hm3",
+      "category": "hard_math",
+      "answer": "31",
+      "correct": true,
+      "completion_tokens": 124,
+      "prompt_tokens": 88,
+      "finish": "stop",
+      "wall_s": 7.81,
+      "expected": "31"
+    },
+    {
+      "id": "hm4",
+      "category": "hard_math",
+      "answer": "4",
+      "correct": true,
+      "completion_tokens": 59,
+      "prompt_tokens": 86,
+      "finish": "stop",
+      "wall_s": 6.18,
+      "expected": "4"
+    },
+    {
+      "id": "hm5",
+      "category": "hard_math",
+      "answer": "48",
+      "correct": true,
+      "completion_tokens": 108,
+      "prompt_tokens": 81,
+      "finish": "stop",
+      "wall_s": 7.11,
+      "expected": "48"
+    },
+    {
+      "id": "hm6",
+      "category": "hard_math",
+      "answer": "24",
+      "correct": true,
+      "completion_tokens": 75,
+      "prompt_tokens": 75,
+      "finish": "stop",
+      "wall_s": 6.52,
+      "expected": "24"
+    },
+    {
+      "id": "hm7",
+      "category": "hard_math",
+      "answer": "198",
+      "correct": true,
+      "completion_tokens": 309,
+      "prompt_tokens": 79,
+      "finish": "stop",
+      "wall_s": 12.09,
+      "expected": "198"
+    },
+    {
+      "id": "tr1",
+      "category": "trap",
+      "answer": "9",
+      "correct": true,
+      "completion_tokens": 66,
+      "prompt_tokens": 78,
+      "finish": "stop",
+      "wall_s": 6.47,
+      "expected": "9"
+    },
+    {
+      "id": "tr2",
+      "category": "trap",
+      "answer": "5",
+      "correct": true,
+      "completion_tokens": 117,
+      "prompt_tokens": 90,
+      "finish": "stop",
+      "wall_s": 7.43,
+      "expected": "5"
+    },
+    {
+      "id": "tr3",
+      "category": "trap",
+      "answer": "2nd",
+      "correct": true,
+      "completion_tokens": 53,
+      "prompt_tokens": 88,
+      "finish": "stop",
+      "wall_s": 5.61,
+      "expected": "2"
+    },
+    {
+      "id": "tr4",
+      "category": "trap",
+      "answer": "5",
+      "correct": true,
+      "completion_tokens": 65,
+      "prompt_tokens": 91,
+      "finish": "stop",
+      "wall_s": 6.38,
+      "expected": "5"
+    },
+    {
+      "id": "cd1",
+      "category": "code_exec",
+      "completion_tokens": 209,
+      "finish": "stop",
+      "exec": {
+        "passed": 5,
+        "total": 5,
+        "detail": [
+          {
+            "args": "[0]",
+            "want": "0",
+            "got": "0",
+            "ok": true
+          },
+          {
+            "args": "[1]",
+            "want": "1",
+            "got": "1",
+            "ok": true
+          },
+          {
+            "args": "[10]",
+            "want": "55",
+            "got": "55",
+            "ok": true
+          },
+          {
+            "args": "[30]",
+            "want": "832040",
+            "got": "832040",
+            "ok": true
+          },
+          {
+            "args": "[50]",
+            "want": "12586269025",
+            "got": "12586269025",
+            "ok": true
+          }
+        ]
+      },
+      "correct": true,
+      "tests_passed": "5/5",
+      "wall_s": 9.62
+    },
+    {
+      "id": "cd2",
+      "category": "code_exec",
+      "completion_tokens": 125,
+      "finish": "stop",
+      "exec": {
+        "passed": 4,
+        "total": 4,
+        "detail": [
+          {
+            "args": "['A man, a plan, a canal: Panama']",
+            "want": "True",
+            "got": "True",
+            "ok": true
+          },
+          {
+            "args": "['race a car']",
+            "want": "False",
+            "got": "False",
+            "ok": true
+          },
+          {
+            "args": "[' ']",
+            "want": "True",
+            "got": "True",
+            "ok": true
+          },
+          {
+            "args": "['ab_a']",
+            "want": "True",
+            "got": "True",
+            "ok": true
+          }
+        ]
+      },
+      "correct": true,
+      "tests_passed": "4/4",
+      "wall_s": 7.61
+    },
+    {
+      "id": "cd3",
+      "category": "code_exec",
+      "completion_tokens": 294,
+      "finish": "stop",
+      "exec": {
+        "passed": 4,
+        "total": 4,
+        "detail": [
+          {
+            "args": "[[10, 9, 2, 5, 3, 7, 101, 18]]",
+            "want": "4",
+            "got": "4",
+            "ok": true
+          },
+          {
+            "args": "[[0, 1, 0, 3, 2, 3]]",
+            "want": "4",
+            "got": "4",
+            "ok": true
+          },
+          {
+            "args": "[[7, 7, 7, 7]]",
+            "want": "1",
+            "got": "1",
+            "ok": true
+          },
+          {
+            "args": "[[]]",
+            "want": "0",
+            "got": "0",
+            "ok": true
+          }
+        ]
+      },
+      "correct": true,
+      "tests_passed": "4/4",
+      "wall_s": 11.77
+    },
+    {
+      "id": "cd4",
+      "category": "code_exec",
+      "completion_tokens": 236,
+      "finish": "stop",
+      "exec": {
+        "passed": 4,
+        "total": 4,
+        "detail": [
+          {
+            "args": "['abcabcbb']",
+            "want": "3",
+            "got": "3",
+            "ok": true
+          },
+          {
+            "args": "['bbbbb']",
+            "want": "1",
+            "got": "1",
+            "ok": true
+          },
+          {
+            "args": "['pwwkew']",
+            "want": "3",
+            "got": "3",
+            "ok": true
+          },
+          {
+            "args": "['']",
+            "want": "0",
+            "got": "0",
+            "ok": true
+          }
+        ]
+      },
+      "correct": true,
+      "tests_passed": "4/4",
+      "wall_s": 10.38
+    },
+    {
+      "id": "cd5",
+      "category": "code_exec",
+      "completion_tokens": 436,
+      "finish": "stop",
+      "exec": {
+        "passed": 3,
+        "total": 3,
+        "detail": [
+          {
+            "args": "[[[1, 3], [2, 6], [8, 10], [15, 18]]]",
+            "want": "[[1, 6], [8, 10], [15, 18]]",
+            "got": "[[1, 6], [8, 10], [15, 18]]",
+            "ok": true
+          },
+          {
+            "args": "[[[1, 4], [4, 5]]]",
+            "want": "[[1, 5]]",
+            "got": "[[1, 5]]",
+            "ok": true
+          },
+          {
+            "args": "[[]]",
+            "want": "[]",
+            "got": "[]",
+            "ok": true
+          }
+        ]
+      },
+      "correct": true,
+      "tests_passed": "3/3",
+      "wall_s": 15.38
+    },
+    {
+      "id": "cd6",
+      "category": "code_exec",
+      "completion_tokens": 775,
+      "finish": "stop",
+      "exec": {
+        "passed": 3,
+        "total": 3,
+        "detail": [
+          {
+            "args": "[[['1', '1', '0'], ['1', '0', '0'], ['0', '0', '1']]]",
+            "want": "2",
+            "got": "2",
+            "ok": true
+          },
+          {
+            "args": "[[['1', '1'], ['1', '1']]]",
+            "want": "1",
+            "got": "1",
+            "ok": true
+          },
+          {
+            "args": "[[['0']]]",
+            "want": "0",
+            "got": "0",
+            "ok": true
+          }
+        ]
+      },
+      "correct": true,
+      "tests_passed": "3/3",
+      "wall_s": 22.96
+    },
+    {
+      "id": "f1",
+      "category": "format",
+      "answer": "I am here to help",
+      "correct": true,
+      "completion_tokens": 87,
+      "prompt_tokens": 67,
+      "finish": "stop",
+      "wall_s": 6.94
+    },
+    {
+      "id": "f2",
+      "category": "format",
+      "answer": "{\"name\":\"Marcus\",\"age\":41}",
+      "correct": true,
+      "completion_tokens": 97,
+      "prompt_tokens": 91,
+      "finish": "stop",
+      "wall_s": 6.97
+    },
+    {
+      "id": "f3",
+      "category": "format",
+      "answer": "A,B,C",
+      "correct": true,
+      "completion_tokens": 60,
+      "prompt_tokens": 71,
+      "finish": "stop",
+      "wall_s": 6.16
+    },
+    {
+      "id": "f4",
+      "category": "format",
+      "answer": "1. Red\n2. Yellow\n3. Blue",
+      "correct": true,
+      "completion_tokens": 156,
+      "prompt_tokens": 84,
+      "finish": "stop",
+      "wall_s": 8.74
+    },
+    {
+      "id": "ln1",
+      "category": "longctx_multi",
+      "answer": "47231,88914,60357",
+      "correct": true,
+      "completion_tokens": 149,
+      "prompt_tokens": 84147,
+      "finish": "stop",
+      "wall_s": 65.32
+    }
+  ]
+}

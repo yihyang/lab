@@ -1,0 +1,37 @@
+=== BENCH qwen3.8-27b ===
+  [qwen3.8-27b] perf/short: {'gen_tok_s': 43.02, 'prompt_tok_s': 26.22, 'prompt_n': 7}
+  [qwen3.8-27b] perf/medium: {'gen_tok_s': 36.79, 'prompt_tok_s': 466.75, 'prompt_n': 1760}
+  [qwen3.8-27b] perf/long: {'gen_tok_s': 34.94, 'prompt_tok_s': 1548.96, 'prompt_n': 14010}
+  [qwen3.8-27b] m1   math      correct=True tok=52 11.22s
+  [qwen3.8-27b] m2   math      correct=True tok=41 5.54s
+  [qwen3.8-27b] m3   math      correct=True tok=56 6.18s
+  [qwen3.8-27b] m4   math      correct=True tok=59 6.12s
+  [qwen3.8-27b] m5   math      correct=True tok=55 6.2s
+  [qwen3.8-27b] m6   math      correct=True tok=40 8.66s
+  [qwen3.8-27b] m7   math      correct=True tok=58 5.72s
+  [qwen3.8-27b] l1   logic     correct=True tok=23 5.14s
+  [qwen3.8-27b] l2   logic     correct=True tok=28 5.24s
+  [qwen3.8-27b] l3   logic     correct=True tok=34 5.41s
+  [qwen3.8-27b] l4   logic     correct=True tok=45 5.26s
+  [qwen3.8-27b] l5   logic     correct=True tok=29 5.26s
+  [qwen3.8-27b] c1   code      correct=True tok=108 6.6s
+  [qwen3.8-27b] c2   code      correct=True tok=77 6.37s
+  [qwen3.8-27b] c3   code      correct=True tok=48 5.67s
+  [qwen3.8-27b] c4   code      correct=True tok=77 5.65s
+  [qwen3.8-27b] c5   code      correct=True tok=52 5.79s
+  [qwen3.8-27b] s1   string    correct=True tok=525 16.58s
+  [qwen3.8-27b] s2   string    correct=True tok=58 5.84s
+  [qwen3.8-27b] s3   string    correct=True tok=33 5.21s
+  [qwen3.8-27b] k1   knowledge correct=True tok=28 5.08s
+  [qwen3.8-27b] k2   knowledge correct=True tok=25 2.79s
+  [qwen3.8-27b] k3   knowledge correct=True tok=207 6.98s
+  [qwen3.8-27b] n1   longctx   correct=True tok=65 14.32s
+  [qwen3.8-27b] n2   longctx   correct=True tok=92 21.87s
+{
+  "label": "qwen3.8-27b",
+  "total_tasks": 25,
+  "correct": 25,
+  "accuracy_pct": 100.0,
+  "total_completion_tokens": 1915,
+  "bench_wall_s": 241.7
+}

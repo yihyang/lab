@@ -1,0 +1,354 @@
+{
+  "summary": {
+    "label": "qwen3.6-27b",
+    "total_tasks": 22,
+    "correct": 20,
+    "accuracy_pct": 90.9,
+    "by_category": {
+      "hard_math": "7/7",
+      "trap": "4/4",
+      "code_exec": "4/6",
+      "format": "4/4",
+      "longctx_multi": "1/1"
+    },
+    "total_completion_tokens": 41731,
+    "bench_wall_s": 1108.4
+  },
+  "results": [
+    {
+      "id": "hm1",
+      "category": "hard_math",
+      "answer": "400",
+      "correct": true,
+      "completion_tokens": 1880,
+      "prompt_tokens": 42,
+      "finish": "stop",
+      "wall_s": 53.53,
+      "expected": "400"
+    },
+    {
+      "id": "hm2",
+      "category": "hard_math",
+      "answer": "429",
+      "correct": true,
+      "completion_tokens": 2375,
+      "prompt_tokens": 34,
+      "finish": "stop",
+      "wall_s": 57.41,
+      "expected": "429"
+    },
+    {
+      "id": "hm3",
+      "category": "hard_math",
+      "answer": "31",
+      "correct": true,
+      "completion_tokens": 868,
+      "prompt_tokens": 46,
+      "finish": "stop",
+      "wall_s": 22.9,
+      "expected": "31"
+    },
+    {
+      "id": "hm4",
+      "category": "hard_math",
+      "answer": "4",
+      "correct": true,
+      "completion_tokens": 736,
+      "prompt_tokens": 44,
+      "finish": "stop",
+      "wall_s": 19.43,
+      "expected": "4"
+    },
+    {
+      "id": "hm5",
+      "category": "hard_math",
+      "answer": "48",
+      "correct": true,
+      "completion_tokens": 579,
+      "prompt_tokens": 39,
+      "finish": "stop",
+      "wall_s": 15.82,
+      "expected": "48"
+    },
+    {
+      "id": "hm6",
+      "category": "hard_math",
+      "answer": "24",
+      "correct": true,
+      "completion_tokens": 710,
+      "prompt_tokens": 33,
+      "finish": "stop",
+      "wall_s": 18.64,
+      "expected": "24"
+    },
+    {
+      "id": "hm7",
+      "category": "hard_math",
+      "answer": "198",
+      "correct": true,
+      "completion_tokens": 966,
+      "prompt_tokens": 37,
+      "finish": "stop",
+      "wall_s": 25.16,
+      "expected": "198"
+    },
+    {
+      "id": "tr1",
+      "category": "trap",
+      "answer": "9",
+      "correct": true,
+      "completion_tokens": 309,
+      "prompt_tokens": 36,
+      "finish": "stop",
+      "wall_s": 9.6,
+      "expected": "9"
+    },
+    {
+      "id": "tr2",
+      "category": "trap",
+      "answer": "5",
+      "correct": true,
+      "completion_tokens": 848,
+      "prompt_tokens": 48,
+      "finish": "stop",
+      "wall_s": 21.79,
+      "expected": "5"
+    },
+    {
+      "id": "tr3",
+      "category": "trap",
+      "answer": "2nd",
+      "correct": true,
+      "completion_tokens": 347,
+      "prompt_tokens": 46,
+      "finish": "stop",
+      "wall_s": 10.4,
+      "expected": "2"
+    },
+    {
+      "id": "tr4",
+      "category": "trap",
+      "answer": "5",
+      "correct": true,
+      "completion_tokens": 388,
+      "prompt_tokens": 49,
+      "finish": "stop",
+      "wall_s": 10.86,
+      "expected": "5"
+    },
+    {
+      "id": "cd1",
+      "category": "code_exec",
+      "completion_tokens": 8192,
+      "finish": "length",
+      "correct": false,
+      "note": "no code block",
+      "answer": "",
+      "wall_s": 195.66
+    },
+    {
+      "id": "cd2",
+      "category": "code_exec",
+      "completion_tokens": 8192,
+      "finish": "length",
+      "correct": false,
+      "note": "no code block",
+      "answer": "",
+      "wall_s": 198.22
+    },
+    {
+      "id": "cd3",
+      "category": "code_exec",
+      "completion_tokens": 2065,
+      "finish": "stop",
+      "exec": {
+        "passed": 4,
+        "total": 4,
+        "detail": [
+          {
+            "args": "[[10, 9, 2, 5, 3, 7, 101, 18]]",
+            "want": "4",
+            "got": "4",
+            "ok": true
+          },
+          {
+            "args": "[[0, 1, 0, 3, 2, 3]]",
+            "want": "4",
+            "got": "4",
+            "ok": true
+          },
+          {
+            "args": "[[7, 7, 7, 7]]",
+            "want": "1",
+            "got": "1",
+            "ok": true
+          },
+          {
+            "args": "[[]]",
+            "want": "0",
+            "got": "0",
+            "ok": true
+          }
+        ]
+      },
+      "correct": true,
+      "tests_passed": "4/4",
+      "wall_s": 52.9
+    },
+    {
+      "id": "cd4",
+      "category": "code_exec",
+      "completion_tokens": 839,
+      "finish": "stop",
+      "exec": {
+        "passed": 4,
+        "total": 4,
+        "detail": [
+          {
+            "args": "['abcabcbb']",
+            "want": "3",
+            "got": "3",
+            "ok": true
+          },
+          {
+            "args": "['bbbbb']",
+            "want": "1",
+            "got": "1",
+            "ok": true
+          },
+          {
+            "args": "['pwwkew']",
+            "want": "3",
+            "got": "3",
+            "ok": true
+          },
+          {
+            "args": "['']",
+            "want": "0",
+            "got": "0",
+            "ok": true
+          }
+        ]
+      },
+      "correct": true,
+      "tests_passed": "4/4",
+      "wall_s": 22.54
+    },
+    {
+      "id": "cd5",
+      "category": "code_exec",
+      "completion_tokens": 7494,
+      "finish": "stop",
+      "exec": {
+        "passed": 3,
+        "total": 3,
+        "detail": [
+          {
+            "args": "[[[1, 6], [2, 6], [8, 10], [15, 18]]]",
+            "want": "[[1, 6], [8, 10], [15, 18]]",
+            "got": "[[1, 6], [8, 10], [15, 18]]",
+            "ok": true
+          },
+          {
+            "args": "[[[1, 5], [4, 5]]]",
+            "want": "[[1, 5]]",
+            "got": "[[1, 5]]",
+            "ok": true
+          },
+          {
+            "args": "[[]]",
+            "want": "[]",
+            "got": "[]",
+            "ok": true
+          }
+        ]
+      },
+      "correct": true,
+      "tests_passed": "3/3",
+      "wall_s": 178.97
+    },
+    {
+      "id": "cd6",
+      "category": "code_exec",
+      "completion_tokens": 2071,
+      "finish": "stop",
+      "exec": {
+        "passed": 3,
+        "total": 3,
+        "detail": [
+          {
+            "args": "[[['0', '0', '0'], ['0', '0', '0'], ['0', '0', '0']]]",
+            "want": "2",
+            "got": "2",
+            "ok": true
+          },
+          {
+            "args": "[[['0', '0'], ['0', '0']]]",
+            "want": "1",
+            "got": "1",
+            "ok": true
+          },
+          {
+            "args": "[[['0']]]",
+            "want": "0",
+            "got": "0",
+            "ok": true
+          }
+        ]
+      },
+      "correct": true,
+      "tests_passed": "3/3",
+      "wall_s": 54.94
+    },
+    {
+      "id": "f1",
+      "category": "format",
+      "answer": "I am writing this now",
+      "correct": true,
+      "completion_tokens": 504,
+      "prompt_tokens": 25,
+      "finish": "stop",
+      "wall_s": 15.82
+    },
+    {
+      "id": "f2",
+      "category": "format",
+      "answer": "{\"name\": \"Marcus\", \"age\": 41}",
+      "correct": true,
+      "completion_tokens": 612,
+      "prompt_tokens": 49,
+      "finish": "stop",
+      "wall_s": 16.44
+    },
+    {
+      "id": "f3",
+      "category": "format",
+      "answer": "A,B,C",
+      "correct": true,
+      "completion_tokens": 183,
+      "prompt_tokens": 29,
+      "finish": "stop",
+      "wall_s": 6.54
+    },
+    {
+      "id": "f4",
+      "category": "format",
+      "answer": "1. Red\n2. Yellow\n3. Blue",
+      "correct": true,
+      "completion_tokens": 929,
+      "prompt_tokens": 42,
+      "finish": "stop",
+      "wall_s": 23.41
+    },
+    {
+      "id": "ln1",
+      "category": "longctx_multi",
+      "answer": "47231,88914,60357",
+      "correct": true,
+      "completion_tokens": 644,
+      "prompt_tokens": 84105,
+      "finish": "stop",
+      "wall_s": 77.43
+    }
+  ]
+}
