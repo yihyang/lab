@@ -1,0 +1,407 @@
+{
+  "summary": {
+    "label": "qwen3.8-27b",
+    "total_tasks": 25,
+    "correct": 25,
+    "accuracy_pct": 100.0,
+    "total_completion_tokens": 1915,
+    "bench_wall_s": 241.7
+  },
+  "perf": [
+    {
+      "case": "short",
+      "runs": [
+        {
+          "prompt_n": 7,
+          "prompt_per_second": 20.364288020853035,
+          "predicted_n": 128,
+          "predicted_per_second": 42.51082199323945,
+          "wall_s": 5.97
+        },
+        {
+          "prompt_n": 7,
+          "prompt_per_second": 34.768614868053106,
+          "predicted_n": 128,
+          "predicted_per_second": 43.27466123209046,
+          "wall_s": 4.75
+        },
+        {
+          "prompt_n": 7,
+          "prompt_per_second": 26.223808970790422,
+          "predicted_n": 128,
+          "predicted_per_second": 43.02403867323276,
+          "wall_s": 3.26
+        }
+      ],
+      "median": {
+        "gen_tok_s": 43.02,
+        "prompt_tok_s": 26.22,
+        "prompt_n": 7
+      }
+    },
+    {
+      "case": "medium",
+      "runs": [
+        {
+          "prompt_n": 1760,
+          "prompt_per_second": 487.7084988470959,
+          "predicted_n": 21,
+          "predicted_per_second": 33.5488983180819,
+          "wall_s": 4.29
+        },
+        {
+          "prompt_n": 1760,
+          "prompt_per_second": 465.53789597502816,
+          "predicted_n": 21,
+          "predicted_per_second": 37.10306347627436,
+          "wall_s": 4.4
+        },
+        {
+          "prompt_n": 1760,
+          "prompt_per_second": 466.7485421401004,
+          "predicted_n": 21,
+          "predicted_per_second": 36.79291893994345,
+          "wall_s": 4.4
+        }
+      ],
+      "median": {
+        "gen_tok_s": 36.79,
+        "prompt_tok_s": 466.75,
+        "prompt_n": 1760
+      }
+    },
+    {
+      "case": "long",
+      "runs": [
+        {
+          "prompt_n": 14010,
+          "prompt_per_second": 1537.7099492687428,
+          "predicted_n": 21,
+          "predicted_per_second": 34.94333356074233,
+          "wall_s": 10.09
+        },
+        {
+          "prompt_n": 14010,
+          "prompt_per_second": 1589.6265126555716,
+          "predicted_n": 21,
+          "predicted_per_second": 34.9257246256295,
+          "wall_s": 9.8
+        },
+        {
+          "prompt_n": 14010,
+          "prompt_per_second": 1548.9593889603973,
+          "predicted_n": 21,
+          "predicted_per_second": 34.94269398186973,
+          "wall_s": 10.01
+        }
+      ],
+      "median": {
+        "gen_tok_s": 34.94,
+        "prompt_tok_s": 1548.96,
+        "prompt_n": 14010
+      }
+    }
+  ],
+  "quality": [
+    {
+      "id": "m1",
+      "category": "math",
+      "expected": "391",
+      "ok": true,
+      "answer": "391",
+      "correct": true,
+      "completion_tokens": 52,
+      "prompt_tokens": 67,
+      "finish": "stop",
+      "wall_s": 11.22
+    },
+    {
+      "id": "m2",
+      "category": "math",
+      "expected": "33",
+      "ok": true,
+      "answer": "33",
+      "correct": true,
+      "completion_tokens": 41,
+      "prompt_tokens": 87,
+      "finish": "stop",
+      "wall_s": 5.54
+    },
+    {
+      "id": "m3",
+      "category": "math",
+      "expected": "36",
+      "ok": true,
+      "answer": "36",
+      "correct": true,
+      "completion_tokens": 56,
+      "prompt_tokens": 70,
+      "finish": "stop",
+      "wall_s": 6.18
+    },
+    {
+      "id": "m4",
+      "category": "math",
+      "expected": "45",
+      "ok": true,
+      "answer": "45",
+      "correct": true,
+      "completion_tokens": 59,
+      "prompt_tokens": 74,
+      "finish": "stop",
+      "wall_s": 6.12
+    },
+    {
+      "id": "m5",
+      "category": "math",
+      "expected": "5050",
+      "ok": true,
+      "answer": "5050",
+      "correct": true,
+      "completion_tokens": 55,
+      "prompt_tokens": 75,
+      "finish": "stop",
+      "wall_s": 6.2
+    },
+    {
+      "id": "m6",
+      "category": "math",
+      "expected": "72",
+      "ok": true,
+      "answer": "72",
+      "correct": true,
+      "completion_tokens": 40,
+      "prompt_tokens": 82,
+      "finish": "stop",
+      "wall_s": 8.66
+    },
+    {
+      "id": "m7",
+      "category": "math",
+      "expected": "66",
+      "ok": true,
+      "answer": "66",
+      "correct": true,
+      "completion_tokens": 58,
+      "prompt_tokens": 75,
+      "finish": "stop",
+      "wall_s": 5.72
+    },
+    {
+      "id": "l1",
+      "category": "logic",
+      "expected": "yes",
+      "ok": true,
+      "answer": "yes",
+      "correct": true,
+      "completion_tokens": 23,
+      "prompt_tokens": 84,
+      "finish": "stop",
+      "wall_s": 5.14
+    },
+    {
+      "id": "l2",
+      "category": "logic",
+      "expected": "bob",
+      "ok": true,
+      "answer": "Bob",
+      "correct": true,
+      "completion_tokens": 28,
+      "prompt_tokens": 74,
+      "finish": "stop",
+      "wall_s": 5.24
+    },
+    {
+      "id": "l3",
+      "category": "logic",
+      "expected": "5",
+      "ok": true,
+      "answer": "5",
+      "correct": true,
+      "completion_tokens": 34,
+      "prompt_tokens": 88,
+      "finish": "stop",
+      "wall_s": 5.41
+    },
+    {
+      "id": "l4",
+      "category": "logic",
+      "expected": "monday",
+      "ok": true,
+      "answer": "Monday",
+      "correct": true,
+      "completion_tokens": 45,
+      "prompt_tokens": 71,
+      "finish": "stop",
+      "wall_s": 5.26
+    },
+    {
+      "id": "l5",
+      "category": "logic",
+      "expected": "5",
+      "ok": true,
+      "answer": "5",
+      "correct": true,
+      "completion_tokens": 29,
+      "prompt_tokens": 92,
+      "finish": "stop",
+      "wall_s": 5.26
+    },
+    {
+      "id": "c1",
+      "category": "code",
+      "expected": "4",
+      "ok": true,
+      "answer": "4",
+      "correct": true,
+      "completion_tokens": 108,
+      "prompt_tokens": 86,
+      "finish": "stop",
+      "wall_s": 6.6
+    },
+    {
+      "id": "c2",
+      "category": "code",
+      "expected": "15",
+      "ok": true,
+      "answer": "15",
+      "correct": true,
+      "completion_tokens": 77,
+      "prompt_tokens": 75,
+      "finish": "stop",
+      "wall_s": 6.37
+    },
+    {
+      "id": "c3",
+      "category": "code",
+      "expected": "3",
+      "ok": true,
+      "answer": "3",
+      "correct": true,
+      "completion_tokens": 48,
+      "prompt_tokens": 68,
+      "finish": "stop",
+      "wall_s": 5.67
+    },
+    {
+      "id": "c4",
+      "category": "code",
+      "expected": "[3, 2, 1]",
+      "ok": true,
+      "answer": "[3, 2, 1]",
+      "correct": true,
+      "completion_tokens": 77,
+      "prompt_tokens": 77,
+      "finish": "stop",
+      "wall_s": 5.65
+    },
+    {
+      "id": "c5",
+      "category": "code",
+      "expected": "false",
+      "ok": true,
+      "answer": "False",
+      "correct": true,
+      "completion_tokens": 52,
+      "prompt_tokens": 69,
+      "finish": "stop",
+      "wall_s": 5.79
+    },
+    {
+      "id": "s1",
+      "category": "string",
+      "expected": "kramhcneb",
+      "ok": true,
+      "answer": "kramhcneb",
+      "correct": true,
+      "completion_tokens": 525,
+      "prompt_tokens": 65,
+      "finish": "stop",
+      "wall_s": 16.58
+    },
+    {
+      "id": "s2",
+      "category": "string",
+      "expected": "3",
+      "ok": true,
+      "answer": "3",
+      "correct": true,
+      "completion_tokens": 58,
+      "prompt_tokens": 74,
+      "finish": "stop",
+      "wall_s": 5.84
+    },
+    {
+      "id": "s3",
+      "category": "string",
+      "expected": "banana",
+      "ok": true,
+      "answer": "BANANA",
+      "correct": true,
+      "completion_tokens": 33,
+      "prompt_tokens": 65,
+      "finish": "stop",
+      "wall_s": 5.21
+    },
+    {
+      "id": "k1",
+      "category": "knowledge",
+      "expected": "canberra",
+      "ok": true,
+      "answer": "Canberra",
+      "correct": true,
+      "completion_tokens": 28,
+      "prompt_tokens": 67,
+      "finish": "stop",
+      "wall_s": 5.08
+    },
+    {
+      "id": "k2",
+      "category": "knowledge",
+      "expected": "au",
+      "ok": true,
+      "answer": "Au",
+      "correct": true,
+      "completion_tokens": 25,
+      "prompt_tokens": 66,
+      "finish": "stop",
+      "wall_s": 2.79
+    },
+    {
+      "id": "k3",
+      "category": "knowledge",
+      "expected": "1989",
+      "ok": true,
+      "answer": "1989",
+      "correct": true,
+      "completion_tokens": 207,
+      "prompt_tokens": 67,
+      "finish": "stop",
+      "wall_s": 6.98
+    },
+    {
+      "id": "n1",
+      "category": "longctx",
+      "expected": "47231",
+      "ok": true,
+      "answer": "47231",
+      "correct": true,
+      "completion_tokens": 65,
+      "prompt_tokens": 15391,
+      "finish": "stop",
+      "wall_s": 14.32
+    },
+    {
+      "id": "n2",
+      "category": "longctx",
+      "expected": "47231",
+      "ok": true,
+      "answer": "47231",
+      "correct": true,
+      "completion_tokens": 92,
+      "prompt_tokens": 15391,
+      "finish": "stop",
+      "wall_s": 21.87
+    }
+  ]
+}

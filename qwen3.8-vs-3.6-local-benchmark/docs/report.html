@@ -1,0 +1,642 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Qwen3.8 vs Qwen3.6</title>
+<style>
+  :root {
+    --paper:      #F4F5F4;
+    --surface:    #FFFFFF;
+    --surface-2:  #EDEFEE;
+    --ink:        #16191B;
+    --ink-2:      #454C50;
+    --ink-3:      #6E7679;
+    --rule:       #D9DCDA;
+    --rule-soft:  #E7E9E7;
+
+    --s38:        #0092A3;
+    --s36:        #B4761E;
+    --s38-wash:   #E2F1F3;
+    --s36-wash:   #F5EBDA;
+
+    --fail:       #A32C1C;
+    --fail-wash:  #F6E4E0;
+    --pass:       #2F6E4F;
+
+    --display: "Iowan Old Style", "Charter", Georgia, "Times New Roman", serif;
+    --body: system-ui, -apple-system, "Segoe UI", sans-serif;
+    --mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+
+    --measure: 66ch;
+    --pad: clamp(1.1rem, 0.7rem + 1.8vw, 2.6rem);
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --paper:     #131617;
+      --surface:   #1A1E20;
+      --surface-2: #22282A;
+      --ink:       #EDEFEE;
+      --ink-2:     #B2BABD;
+      --ink-3:     #838C90;
+      --rule:      #2E3538;
+      --rule-soft: #252B2D;
+
+      --s38:       #12A0B4;
+      --s36:       #C4851F;
+      --s38-wash:  #0C2E34;
+      --s36-wash:  #33260C;
+
+      --fail:      #E0705C;
+      --fail-wash: #3A1C16;
+      --pass:      #6FBF95;
+    }
+  }
+
+  :root[data-theme="dark"] {
+    --paper:     #131617;
+    --surface:   #1A1E20;
+    --surface-2: #22282A;
+    --ink:       #EDEFEE;
+    --ink-2:     #B2BABD;
+    --ink-3:     #838C90;
+    --rule:      #2E3538;
+    --rule-soft: #252B2D;
+
+    --s38:       #12A0B4;
+    --s36:       #C4851F;
+    --s38-wash:  #0C2E34;
+    --s36-wash:  #33260C;
+
+    --fail:      #E0705C;
+    --fail-wash: #3A1C16;
+    --pass:      #6FBF95;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: var(--body);
+    font-size: 16px;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .wrap {
+    max-width: 60rem;
+    margin: 0 auto;
+    padding: var(--pad);
+    display: flex;
+    flex-direction: column;
+    gap: clamp(2.2rem, 1.4rem + 2.6vw, 3.8rem);
+  }
+
+  h1, h2, h3 { font-family: var(--display); font-weight: 600; text-wrap: balance; margin: 0; }
+
+  h1 {
+    font-size: clamp(2rem, 1.4rem + 2.8vw, 3.1rem);
+    line-height: 1.08;
+    letter-spacing: -0.015em;
+  }
+
+  h2 {
+    font-size: clamp(1.25rem, 1.05rem + 0.9vw, 1.6rem);
+    line-height: 1.2;
+  }
+
+  h3 { font-size: 1rem; letter-spacing: -0.005em; }
+
+  p { margin: 0; max-width: var(--measure); color: var(--ink-2); }
+
+  .eyebrow {
+    font-family: var(--mono);
+    font-size: 0.7rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+  }
+
+  /* ---------- header ---------- */
+  header { display: flex; flex-direction: column; gap: 1rem; }
+
+  .verdict {
+    font-family: var(--display);
+    font-size: clamp(1.05rem, 0.95rem + 0.6vw, 1.3rem);
+    line-height: 1.45;
+    color: var(--ink);
+    max-width: 54ch;
+    margin: 0;
+  }
+  .verdict em { font-style: italic; color: var(--s38); }
+
+  .meta {
+    display: flex; flex-wrap: wrap; gap: 0 1.5rem;
+    font-family: var(--mono); font-size: 0.75rem;
+    color: var(--ink-3); padding-top: 0.9rem;
+    border-top: 1px solid var(--rule);
+  }
+  .meta span { white-space: nowrap; }
+
+  /* ---------- section ---------- */
+  section { display: flex; flex-direction: column; gap: 1.1rem; }
+  .sec-head { display: flex; flex-direction: column; gap: 0.35rem; }
+
+  /* ---------- stat tiles ---------- */
+  .tiles {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
+    gap: 0.9rem;
+  }
+  .tile {
+    background: var(--surface);
+    border: 1px solid var(--rule);
+    border-radius: 3px;
+    padding: 1.05rem 1.15rem 1.15rem;
+    display: flex; flex-direction: column; gap: 0.75rem;
+  }
+  .tile-label {
+    font-family: var(--mono); font-size: 0.68rem;
+    letter-spacing: 0.12em; text-transform: uppercase; color: var(--ink-3);
+  }
+  .tile-rows { display: flex; flex-direction: column; gap: 0.5rem; }
+  .tile-row { display: flex; align-items: baseline; gap: 0.6rem; }
+  .swatch {
+    width: 9px; height: 9px; border-radius: 2px; flex: none;
+    transform: translateY(-1px);
+  }
+  .sw38 { background: var(--s38); }
+  .sw36 { background: var(--s36); }
+  .tile-name { font-family: var(--mono); font-size: 0.76rem; color: var(--ink-2); flex: none; }
+  .tile-val {
+    margin-left: auto; font-family: var(--mono);
+    font-variant-numeric: tabular-nums; font-size: 1.28rem;
+    font-weight: 600; color: var(--ink); letter-spacing: -0.02em;
+  }
+  .tile-note {
+    font-size: 0.78rem; color: var(--ink-3);
+    border-top: 1px dashed var(--rule); padding-top: 0.6rem; margin: 0;
+  }
+
+  /* ---------- legend ---------- */
+  .legend {
+    display: flex; gap: 1.2rem; flex-wrap: wrap;
+    font-family: var(--mono); font-size: 0.74rem; color: var(--ink-2);
+  }
+  .legend span { display: inline-flex; align-items: center; gap: 0.42rem; }
+
+  /* ---------- bar chart ---------- */
+  .chart {
+    background: var(--surface);
+    border: 1px solid var(--rule);
+    border-radius: 3px;
+    padding: 1.15rem 1.2rem;
+    display: flex; flex-direction: column; gap: 1.15rem;
+  }
+  .grp { display: flex; flex-direction: column; gap: 0.42rem; }
+  .grp-label {
+    font-family: var(--mono); font-size: 0.72rem; color: var(--ink-2);
+    display: flex; justify-content: space-between; gap: 1rem;
+  }
+  .grp-label small { color: var(--ink-3); font-size: 0.68rem; }
+  .bars { display: flex; flex-direction: column; gap: 2px; }
+  .bar-line { display: flex; align-items: center; gap: 0.6rem; }
+  .track { flex: 1; height: 15px; background: var(--surface-2); border-radius: 2px; overflow: hidden; }
+  .bar {
+    height: 100%;
+    border-radius: 0 4px 4px 0;
+    min-width: 3px;
+  }
+  .b38 { background: var(--s38); }
+  .b36 { background: var(--s36); }
+  .bar-val {
+    font-family: var(--mono); font-variant-numeric: tabular-nums;
+    font-size: 0.76rem; color: var(--ink); width: 6.6rem; text-align: right; flex: none;
+  }
+
+  /* ---------- table ---------- */
+  .scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  table {
+    border-collapse: collapse; width: 100%; min-width: 34rem;
+    font-size: 0.84rem;
+  }
+  caption {
+    text-align: left; font-family: var(--mono); font-size: 0.68rem;
+    letter-spacing: 0.12em; text-transform: uppercase;
+    color: var(--ink-3); padding-bottom: 0.6rem;
+  }
+  th, td { text-align: left; padding: 0.5rem 0.7rem; border-bottom: 1px solid var(--rule-soft); }
+  thead th {
+    font-family: var(--mono); font-size: 0.68rem; font-weight: 600;
+    letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-3);
+    border-bottom: 1px solid var(--rule);
+  }
+  td.num, th.num { text-align: right; font-family: var(--mono); font-variant-numeric: tabular-nums; }
+  tbody tr:last-child td { border-bottom: none; }
+  .row-hl td { background: var(--surface-2); font-weight: 600; }
+
+  .chip {
+    display: inline-block; font-family: var(--mono); font-size: 0.68rem;
+    padding: 0.08rem 0.4rem; border-radius: 2px; white-space: nowrap;
+  }
+  .chip-pass { color: var(--pass); background: transparent; border: 1px solid currentColor; }
+  .chip-fail { color: var(--fail); background: var(--fail-wash); border: 1px solid currentColor; }
+
+  /* ---------- failure cards ---------- */
+  .fails { display: flex; flex-direction: column; gap: 0.75rem; }
+  .fail-card {
+    background: var(--surface); border: 1px solid var(--rule);
+    border-left: 3px solid var(--fail); border-radius: 3px;
+    padding: 0.95rem 1.1rem; display: flex; flex-direction: column; gap: 0.6rem;
+  }
+  .fail-head { display: flex; align-items: baseline; gap: 0.7rem; flex-wrap: wrap; }
+  .fail-id { font-family: var(--mono); font-size: 0.72rem; color: var(--ink-3); }
+  .fail-title { font-family: var(--display); font-size: 1.02rem; font-weight: 600; }
+  .fail-body { font-size: 0.87rem; color: var(--ink-2); margin: 0; max-width: var(--measure); }
+  .cmp {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr));
+    gap: 0.5rem; font-family: var(--mono); font-size: 0.75rem;
+  }
+  .cmp div {
+    background: var(--surface-2); border-radius: 2px; padding: 0.45rem 0.6rem;
+    display: flex; justify-content: space-between; gap: 0.5rem;
+    font-variant-numeric: tabular-nums;
+  }
+  .cmp b { font-weight: 600; }
+  code {
+    font-family: var(--mono); font-size: 0.88em;
+    background: var(--surface-2); padding: 0.08em 0.32em; border-radius: 2px;
+  }
+
+  /* ---------- caveats ---------- */
+  .caveats {
+    background: var(--surface); border: 1px solid var(--rule);
+    border-radius: 3px; padding: 1.1rem 1.2rem;
+    display: flex; flex-direction: column; gap: 0.7rem;
+  }
+  .caveats ul { margin: 0; padding-left: 1.05rem; display: flex; flex-direction: column; gap: 0.5rem; }
+  .caveats li { font-size: 0.86rem; color: var(--ink-2); max-width: var(--measure); }
+  .caveats strong { color: var(--ink); font-weight: 600; }
+
+  footer {
+    border-top: 1px solid var(--rule); padding-top: 1rem;
+    font-family: var(--mono); font-size: 0.71rem; color: var(--ink-3);
+  }
+
+  a { color: var(--s38); }
+  a:focus-visible, th:focus-visible { outline: 2px solid var(--s38); outline-offset: 2px; }
+
+  @media (prefers-reduced-motion: reduce) {
+    * { animation: none !important; transition: none !important; }
+  }
+</style>
+</head>
+<body>
+
+
+<div class="wrap">
+
+  <header>
+    <p class="eyebrow">Local inference benchmark &middot; single-GPU workstation</p>
+    <h1>Qwen3.8&#8209;27B vs Qwen3.6&#8209;27B</h1>
+    <p class="verdict">
+      Same weights class, same quant, same GPU, near&#8209;identical throughput &mdash; but Qwen3.8
+      reached the same answers on <em>one&#8209;eighth the reasoning tokens</em>, finishing the
+      47&#8209;task suite in a third of the wall time and without the runaway&#8209;reasoning
+      failures that cost 3.6 two coding tasks.
+    </p>
+    <div class="meta">
+      <span>RTX 5090 &middot; 32 GB</span>
+      <span>llama.cpp b9282</span>
+      <span>UD&#8209;Q4_K_XL</span>
+      <span>ctx 131,072</span>
+      <span>KV q8_0</span>
+      <span>2026&#8209;08&#8209;15</span>
+    </div>
+  </header>
+
+  <!-- ============ HEADLINE ============ -->
+  <section>
+    <div class="sec-head">
+      <h2>The three numbers that matter</h2>
+      <p>Both models ran the identical 47&#8209;task suite, sequentially on the same box at
+         <code>temperature 0</code>. Lower is better for tokens and time.</p>
+    </div>
+
+    <div class="tiles">
+      <div class="tile">
+        <span class="tile-label">Accuracy &middot; 47 tasks</span>
+        <div class="tile-rows">
+          <div class="tile-row"><i class="swatch sw38"></i><span class="tile-name">Qwen3.8</span><span class="tile-val">100%</span></div>
+          <div class="tile-row"><i class="swatch sw36"></i><span class="tile-name">Qwen3.6</span><span class="tile-val">93.6%</span></div>
+        </div>
+        <p class="tile-note">47/47 vs 44/47. All three misses were 3.6's.</p>
+      </div>
+
+      <div class="tile">
+        <span class="tile-label">Reasoning tokens spent</span>
+        <div class="tile-rows">
+          <div class="tile-row"><i class="swatch sw38"></i><span class="tile-name">Qwen3.8</span><span class="tile-val">6,408</span></div>
+          <div class="tile-row"><i class="swatch sw36"></i><span class="tile-name">Qwen3.6</span><span class="tile-val">51,436</span></div>
+        </div>
+        <p class="tile-note">3.6 spent <strong>8.0&times;</strong> more tokens for a lower score.</p>
+      </div>
+
+      <div class="tile">
+        <span class="tile-label">Total wall clock</span>
+        <div class="tile-rows">
+          <div class="tile-row"><i class="swatch sw38"></i><span class="tile-name">Qwen3.8</span><span class="tile-val">516s</span></div>
+          <div class="tile-row"><i class="swatch sw36"></i><span class="tile-name">Qwen3.6</span><span class="tile-val">1,474s</span></div>
+        </div>
+        <p class="tile-note">2.9&times; longer &mdash; despite equal tokens&#8202;/&#8202;second.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ THE FINDING ============ -->
+  <section>
+    <div class="sec-head">
+      <h2>The gain is efficiency, not speed</h2>
+      <p>This is the whole story in one comparison. Raw generation rate is a tie. What changed
+         is how many tokens the model needs to think before it answers &mdash; and that is what
+         you actually feel at the prompt.</p>
+    </div>
+
+    <div class="legend">
+      <span><i class="swatch sw38"></i>Qwen3.8&#8209;27B</span>
+      <span><i class="swatch sw36"></i>Qwen3.6&#8209;27B</span>
+    </div>
+
+    <div class="chart">
+      <div class="grp">
+        <div class="grp-label"><span>Completion tokens across all 47 tasks</span><small>lower is better</small></div>
+        <div class="bars">
+          <div class="bar-line"><div class="track"><div class="bar b38" style="width:12.5%"></div></div><span class="bar-val">6,408</span></div>
+          <div class="bar-line"><div class="track"><div class="bar b36" style="width:100%"></div></div><span class="bar-val">51,436</span></div>
+        </div>
+      </div>
+
+      <div class="grp">
+        <div class="grp-label"><span>Wall-clock seconds across all 47 tasks</span><small>lower is better</small></div>
+        <div class="bars">
+          <div class="bar-line"><div class="track"><div class="bar b38" style="width:35%"></div></div><span class="bar-val">516 s</span></div>
+          <div class="bar-line"><div class="track"><div class="bar b36" style="width:100%"></div></div><span class="bar-val">1,474 s</span></div>
+        </div>
+      </div>
+    </div>
+
+    <p>The wall-clock gap (2.9&times;) is smaller than the token gap (8.0&times;) because prompt
+       processing and model load are fixed costs that neither model can avoid.</p>
+  </section>
+
+  <!-- ============ THROUGHPUT ============ -->
+  <section>
+    <div class="sec-head">
+      <h2>Throughput: effectively a tie</h2>
+      <p>Median of three runs per case. If you were expecting the new model to be faster
+         per token, it isn't &mdash; and it doesn't need to be.</p>
+    </div>
+
+    <div class="legend">
+      <span><i class="swatch sw38"></i>Qwen3.8&#8209;27B</span>
+      <span><i class="swatch sw36"></i>Qwen3.6&#8209;27B</span>
+    </div>
+
+    <div class="chart">
+      <div class="grp">
+        <div class="grp-label"><span>Generation rate &mdash; short prompt</span><small>7 tokens in &middot; higher is better</small></div>
+        <div class="bars">
+          <div class="bar-line"><div class="track"><div class="bar b38" style="width:95.6%"></div></div><span class="bar-val">43.02 t/s</span></div>
+          <div class="bar-line"><div class="track"><div class="bar b36" style="width:95.5%"></div></div><span class="bar-val">42.97 t/s</span></div>
+        </div>
+      </div>
+
+      <div class="grp">
+        <div class="grp-label"><span>Generation rate &mdash; medium prompt</span><small>1,760 tokens in</small></div>
+        <div class="bars">
+          <div class="bar-line"><div class="track"><div class="bar b38" style="width:81.8%"></div></div><span class="bar-val">36.79 t/s</span></div>
+          <div class="bar-line"><div class="track"><div class="bar b36" style="width:74.7%"></div></div><span class="bar-val">33.63 t/s</span></div>
+        </div>
+      </div>
+
+      <div class="grp">
+        <div class="grp-label"><span>Generation rate &mdash; long prompt</span><small>14,010 tokens in</small></div>
+        <div class="bars">
+          <div class="bar-line"><div class="track"><div class="bar b38" style="width:77.6%"></div></div><span class="bar-val">34.94 t/s</span></div>
+          <div class="bar-line"><div class="track"><div class="bar b36" style="width:73.2%"></div></div><span class="bar-val">32.93 t/s</span></div>
+        </div>
+      </div>
+
+      <div class="grp">
+        <div class="grp-label"><span>Prefill rate &mdash; long prompt</span><small>14,010 tokens in &middot; 3.6 marginally ahead</small></div>
+        <div class="bars">
+          <div class="bar-line"><div class="track"><div class="bar b38" style="width:96.8%"></div></div><span class="bar-val">1,549 t/s</span></div>
+          <div class="bar-line"><div class="track"><div class="bar b36" style="width:98.3%"></div></div><span class="bar-val">1,572 t/s</span></div>
+        </div>
+      </div>
+    </div>
+
+    <p>Generation differs by 0.1&ndash;9%, and prefill actually favours 3.6 by 1.5% &mdash; all
+       within run-to-run noise on a shared box. Treat throughput as unchanged.</p>
+  </section>
+
+  <!-- ============ SCORES ============ -->
+  <section>
+    <div class="sec-head">
+      <h2>Where the points were won and lost</h2>
+      <p>Every category tied except executed code. Both models handled multi-step maths,
+         classic reasoning traps, strict output formatting, and 84k-token retrieval perfectly.</p>
+    </div>
+
+    <div class="scroll">
+      <table>
+        <caption>Hard suite &middot; 22 tasks by category</caption>
+        <thead>
+          <tr>
+            <th scope="col">Category</th>
+            <th scope="col" class="num">Qwen3.8</th>
+            <th scope="col" class="num">Qwen3.6</th>
+            <th scope="col">What it tests</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>Multi-step maths</td><td class="num">7/7</td><td class="num">7/7</td><td>Number theory, combinatorics, rates</td></tr>
+          <tr><td>Reasoning traps</td><td class="num">4/4</td><td class="num">4/4</td><td>Bat-and-ball, machine-rate, overtaking</td></tr>
+          <tr class="row-hl"><td>Executed code</td><td class="num">6/6</td><td class="num">4/6</td><td>Written, then run against hidden tests</td></tr>
+          <tr><td>Strict formatting</td><td class="num">4/4</td><td class="num">4/4</td><td>Exact word counts, raw JSON, list shape</td></tr>
+          <tr><td>Long-context retrieval</td><td class="num">1/1</td><td class="num">1/1</td><td>3 needles at 84,147 prompt tokens</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="scroll">
+      <table>
+        <caption>Both suites &middot; totals</caption>
+        <thead>
+          <tr>
+            <th scope="col">Suite</th>
+            <th scope="col" class="num">Tasks</th>
+            <th scope="col" class="num">Qwen3.8</th>
+            <th scope="col" class="num">Qwen3.6</th>
+            <th scope="col" class="num">3.8 tokens</th>
+            <th scope="col" class="num">3.6 tokens</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>Baseline</td><td class="num">25</td><td class="num">25 <span class="chip chip-pass">100%</span></td><td class="num">24 <span class="chip chip-fail">96%</span></td><td class="num">1,915</td><td class="num">9,705</td></tr>
+          <tr><td>Hard</td><td class="num">22</td><td class="num">22 <span class="chip chip-pass">100%</span></td><td class="num">20 <span class="chip chip-fail">90.9%</span></td><td class="num">4,493</td><td class="num">41,731</td></tr>
+          <tr class="row-hl"><td>Combined</td><td class="num">47</td><td class="num">47 &middot; 100%</td><td class="num">44 &middot; 93.6%</td><td class="num">6,408</td><td class="num">51,436</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ============ FAILURES ============ -->
+  <section>
+    <div class="sec-head">
+      <h2>All three failures, in detail</h2>
+      <p>Every miss belonged to Qwen3.6. Two of them are the same failure mode, and it is
+         worth understanding because it is not a knowledge gap.</p>
+    </div>
+
+    <div class="fails">
+
+      <div class="fail-card">
+        <div class="fail-head">
+          <span class="fail-id">cd1</span>
+          <span class="fail-title">Fibonacci &mdash; never produced code</span>
+          <span class="chip chip-fail">runaway reasoning</span>
+        </div>
+        <p class="fail-body">
+          Asked for a <code>solve(n)</code> returning the nth Fibonacci number, 3.6 hit the
+          8,192-token cap still thinking, emitting no code block. Suspecting the cap was
+          simply too tight, the task was re-run with a <strong>32,768-token budget</strong>.
+          It failed again &mdash; <code>finish_reason: length</code>, still no code, after
+          844 seconds of continuous generation.
+        </p>
+        <div class="cmp">
+          <div><span>Qwen3.8</span><b>209 tok &middot; 9.6s &middot; 5/5</b></div>
+          <div><span>Qwen3.6</span><b>32,768 tok &middot; 845s &middot; fail</b></div>
+        </div>
+      </div>
+
+      <div class="fail-card">
+        <div class="fail-head">
+          <span class="fail-id">cd2</span>
+          <span class="fail-title">Palindrome check &mdash; never produced code</span>
+          <span class="chip chip-fail">runaway reasoning</span>
+        </div>
+        <p class="fail-body">
+          Identical pattern: alphanumeric-only, case-insensitive palindrome test. Capped out
+          at 8,192 tokens, then again at 32,768 after 815 seconds without emitting a function.
+        </p>
+        <div class="cmp">
+          <div><span>Qwen3.8</span><b>125 tok &middot; 7.6s &middot; 4/4</b></div>
+          <div><span>Qwen3.6</span><b>32,768 tok &middot; 815s &middot; fail</b></div>
+        </div>
+      </div>
+
+      <div class="fail-card">
+        <div class="fail-head">
+          <span class="fail-id">s1</span>
+          <span class="fail-title">Reversing a nine-letter word</span>
+          <span class="chip chip-fail">wrong output</span>
+        </div>
+        <p class="fail-body">
+          Asked to reverse <code>benchmark</code>, 3.6 returned <code>kramhcn eb</code> &mdash;
+          correct letters, stray space &mdash; after 2,653 reasoning tokens. 3.8 returned
+          <code>kramhcneb</code> in 525.
+        </p>
+        <div class="cmp">
+          <div><span>Qwen3.8</span><b>525 tok &middot; correct</b></div>
+          <div><span>Qwen3.6</span><b>2,653 tok &middot; wrong</b></div>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="caveats">
+      <h3>Why this isn't a prompt artifact</h3>
+      <ul>
+        <li>3.6 solved the other <strong>four</strong> code tasks &mdash; longest increasing
+            subsequence, longest non-repeating substring, interval merging, island counting
+            &mdash; using the <strong>identical</strong> prompt template and extraction logic.
+            The two it failed are the two easiest in the set.</li>
+        <li>Quadrupling the token budget changed nothing, so the cap was not the constraint.</li>
+        <li>Grading ran on the final answer only, with reasoning blocks stripped, and the
+            grader was self-tested against ten hand-written cases before use.</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- ============ METHOD ============ -->
+  <section>
+    <div class="sec-head">
+      <h2>How this was measured</h2>
+    </div>
+
+    <div class="scroll">
+      <table>
+        <caption>Held constant across both runs</caption>
+        <thead><tr><th scope="col">Variable</th><th scope="col">Value</th></tr></thead>
+        <tbody>
+          <tr><td>GPU</td><td>NVIDIA RTX 5090, 32,607 MiB</td></tr>
+          <tr><td>Runtime</td><td>llama.cpp build 9282 <code>(4f0e43da6)</code>, identical binary</td></tr>
+          <tr><td>Quantisation</td><td>Unsloth Dynamic UD-Q4_K_XL, both models</td></tr>
+          <tr><td>Context</td><td>131,072, KV cache q8_0, flash-attn on</td></tr>
+          <tr><td>Concurrency</td><td><code>--parallel 1</code> &mdash; no request overlap</td></tr>
+          <tr><td>Sampling</td><td><code>temperature 0</code>, fixed seed 1234</td></tr>
+          <tr><td>VRAM in use</td><td>22,454 MiB (3.8) &middot; 21,990 MiB (3.6)</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p>Code tasks were graded by execution: the model's function was extracted, run in a
+       subprocess against hidden test vectors, and scored only if every vector passed. All
+       expected answers &mdash; including every maths result &mdash; were independently
+       computed before the run rather than assumed.</p>
+  </section>
+
+  <!-- ============ CAVEATS ============ -->
+  <section>
+    <div class="sec-head">
+      <h2>What this does not prove</h2>
+      <p>Stated plainly, because a benchmark that hides its limits is worth less than one
+         that names them.</p>
+    </div>
+
+    <div class="caveats">
+      <ul>
+        <li><strong>47 tasks is a small sample.</strong> A 47&ndash;44 split is suggestive,
+            not statistically conclusive. The confidence interval on a three-task difference
+            is wide.</li>
+        <li><strong>Qwen3.8 saturated both suites.</strong> Scoring 100% means the ceiling was
+            hit &mdash; its actual headroom is unmeasured, and the true quality gap could be
+            larger than shown.</li>
+        <li><strong>Runs were sequential, not interleaved.</strong> Both models need ~22 GB,
+            so they cannot be co-resident on a 32 GB card. Host load varied between blocks,
+            which adds noise to timing &mdash; though not to correctness.</li>
+        <li><strong>Both are 4-bit quantisations</strong>, not the original weights.
+            Quantisation damage is not necessarily equal across two different models.</li>
+        <li><strong>Thinking was left at each model's default.</strong> Qwen3.8 ships a
+            reasoning-effort control that 3.6 lacks, so part of the token gap is a
+            product decision, not raw capability &mdash; but the tokens are spent either way.</li>
+        <li><strong>None of the vendor's headline claims were replicated.</strong> The
+            agentic-coding, computer-use and vision benchmarks Qwen reports need harnesses
+            not present here. Vision was not tested at all.</li>
+      </ul>
+    </div>
+  </section>
+
+  <footer>
+    47 tasks &middot; 2 suites &middot; 2 models &middot; measured 15 Aug 2026.
+    Weights verified by SHA-256 against the publisher before benchmarking.
+  </footer>
+
+</div>
+
+</body>
+</html>

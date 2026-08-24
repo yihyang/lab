@@ -10,7 +10,7 @@ This repository contains demos, POCs, experiments, and learnings. The code insid
 
 | Project | Description | Tech Stack | Status |
 |---------|-------------|------------|--------|
-| <!-- Example: | --> | <!-- Example: | --> | <!-- Example: --> |
+| [qwen3.8-vs-3.6-local-benchmark](qwen3.8-vs-3.6-local-benchmark/) | Head-to-head of two local 27B models on one RTX 5090 — same throughput, 8x fewer reasoning tokens | Python, llama.cpp, Docker | Complete |
 
 ## Repository Structure
 
